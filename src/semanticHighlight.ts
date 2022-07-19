@@ -85,7 +85,9 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
             //quotation(")
             else if (match.groups.quotation !== undefined) {
               if (replacementOctave !== undefined) {
-                replacementMap.set(replacementKey, replacementOctave);
+                if (replacementKey !== "") {
+                  replacementMap.set(replacementKey, replacementOctave);
+                }
                 replacementOctave = undefined;
                 replacementKey = "";
               } else if (!inQuotation) {

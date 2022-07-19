@@ -340,7 +340,9 @@ export class MmlHoverProvider {
                   } else {
                     replacementValue += " " + text.substring(0, match.index);
                   }
-                  replacementMap.set(replacementKey, replacementValue);
+                  if (replacementKey !== "") {
+                    replacementMap.set(replacementKey, replacementValue);
+                  }
                   inReplacement = false;
                   replacementKey = "";
                   replacementValue = "";

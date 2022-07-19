@@ -473,11 +473,11 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
             if (match.groups.replacementBegin !== undefined) {
               if (inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "Unexpected end of file found.\nNested replacement are not allowed."));
-              }
-              //Empty check
-              else if (match.groups.replacementBeginValue === "") {
-                diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing replacement directive; string to find was of zero length."));
               } else {
+                //Empty check
+                if (match.groups.replacementBeginValue === "") {
+                  diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing replacement directive; string to find was of zero length."));
+                }
                 if (quotationMatch !== undefined) {
                   diagnostics.push(createDiagnostic(lineIndex, quotationMatch, "Unexpected Quotation found."));
                   quotationMatch = undefined;
@@ -497,7 +497,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 } else {
                   replacementValue += " " + text.substring(0, match.index);
                 }
-                replacementMap.set(replacementKey, replacementValue);
+                if (replacementKey !== "") {
+                  replacementMap.set(replacementKey, replacementValue);
+                }
                 inReplacement = false;
                 replacementKey = "";
                 replacementValue = "";
