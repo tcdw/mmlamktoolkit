@@ -1,0 +1,128 @@
+{
+  "name": "mmlamktoolkit",
+  "displayName": "MML(AddmusicK) Toolkit",
+  "description": "Extensions that are very helpful in working with MML(AddmusicK)",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.67.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:mml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mml",
+        "aliases": [
+          "MML",
+          "mml"
+        ],
+        "extensions": [
+          ".txt",
+          ".mml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mml",
+        "scopeName": "source.mml",
+        "path": "./syntaxes/mml.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "MML(AddmusicK) Toolkit",
+      "properties": {
+        "mmlamktoolkit.AddmusickPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path of AddmusicK directory."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "editor.semanticTokenColorCustomizations": {
+        "[Default Dark+]": {
+          "enabled": true,
+          "rules": {
+            "note.o1": {
+              "foreground": "#d790d9"
+            },
+            "note.o2": {
+              "foreground": "#db92c5"
+            },
+            "note.o3": {
+              "foreground": "#df94b1"
+            },
+            "note.o4": {
+              "foreground": "#e4959c"
+            },
+            "note.o5": {
+              "foreground": "#e99689"
+            },
+            "note.o6": {
+              "foreground": "#ed9874"
+            },
+            "octave.o1": {
+              "foreground": "#e4b5e6",
+              "fontStyle": "bold"
+            },
+            "octave.o2": {
+              "foreground": "#e7b6d8",
+              "fontStyle": "bold"
+            },
+            "octave.o3": {
+              "foreground": "#eab8cb",
+              "fontStyle": "bold"
+            },
+            "octave.o4": {
+              "foreground": "#edb8bd",
+              "fontStyle": "bold"
+            },
+            "octave.o5": {
+              "foreground": "#f0b9b0",
+              "fontStyle": "bold"
+            },
+            "octave.o6": {
+              "foreground": "#f3baa2",
+              "fontStyle": "bold"
+            },
+            "rest": {
+              "foreground": "#9c6bcf"
+            },
+            "hex": {
+              "foreground": "#fce89d",
+              "bold": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.67.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "14.x",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "eslint": "^8.14.0",
+    "glob": "^8.0.1",
+    "mocha": "^9.2.2",
+    "typescript": "^4.6.4",
+    "@vscode/test-electron": "^2.1.3"
+  }
+}

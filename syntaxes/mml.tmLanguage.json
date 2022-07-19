@@ -1,0 +1,328 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MML",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#replacement" },
+    { "include": "#sample_load" },
+    { "include": "#quotation_after_path" },
+    { "include": "#illegal_loop" },
+    { "include": "#sign_samples" },
+    { "include": "#sign_instruments" },
+    { "include": "#sign_spc" },
+    { "include": "#sign_option" },
+    { "include": "#sign_define" },
+    { "include": "#sign_endif" },
+    { "include": "#sign_any" },
+    { "include": "#loop_recall" },
+    { "include": "#hex_command" },
+    { "include": "#quantization" },
+    { "include": "#noise" },
+    { "include": "#note" },
+    { "include": "#rest" },
+    { "include": "#tie" },
+    { "include": "#tune" },
+    { "include": "#octave" },
+    { "include": "#default_length" },
+    { "include": "#instrument" },
+    { "include": "#volume" },
+    { "include": "#global_volume" },
+    { "include": "#pan" },
+    { "include": "#tempo" },
+    { "include": "#vibrato" },
+    { "include": "#octave_lower" },
+    { "include": "#octave_raise" },
+    { "include": "#num" }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.semicolon.mml",
+          "match": ";.*"
+        }
+      ]
+    },
+    "replacement": {
+      "patterns": [
+        {
+          "begin": "(\")\\s*(\\S*)\\s*\\=",
+          "beginCaptures": {
+            "1": {
+              "name": "string.quoted.double.mml"
+            },
+            "2": {
+              "name": "variable.other.constant.replacement.mml"
+            }
+          },
+          "end": "(\")",
+          "endCaptures": {
+            "1": {
+              "name": "string.quoted.double.mml"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
+    "sample_load": {
+      "patterns": [
+        {
+          "match": "\\((\"\\S*\")\\,\\s*(\\$[a-fA-F\\d]*)\\)",
+          "captures": {
+            "1": {
+              "name": "string.quoted.double.mml"
+            },
+            "2": {
+              "name": "entity.name.function.hex_command.mml"
+            }
+          }
+        }
+      ]
+    },
+    "quotation_after_path": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.mml",
+          "begin": "(?<=#(?i:path)\\s*)\"",
+          "end": "\""
+        }
+      ]
+    },
+    "quotation": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.mml",
+          "begin": "\"",
+          "end": "\""
+        }
+      ]
+    },
+    "illegal_loop": {
+      "patterns": [
+        {
+          "name": "invalid.illegal.illegal_loop.mml",
+          "match": "(?:\\[\\[\\[|\\]\\]\\])"
+        }
+      ]
+    },
+    "sign_samples": {
+      "patterns": [
+        {
+          "begin": "(#(?i:samples))",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.sign_samples.mml"
+            }
+          },
+          "end": "((?<=\\}))",
+          "patterns": [{ "include": "#comment" }, { "include": "#sign_any" }, { "include": "#quotation" }]
+        }
+      ]
+    },
+    "sign_instruments": {
+      "patterns": [
+        {
+          "begin": "(#(?i:instruments))",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.sign_instruments.mml"
+            }
+          },
+          "end": "((?<=\\}))",
+          "patterns": [{ "include": "#comment" }, { "include": "#quotation" }, { "include": "#hex_command" }, { "include": "#noise" }, { "include": "#instrument" }]
+        }
+      ]
+    },
+    "sign_spc": {
+      "patterns": [
+        {
+          "begin": "(#(?i:spc))",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.sign_spc.mml"
+            }
+          },
+          "end": "((?<=\\}))",
+          "patterns": [{ "include": "#comment" }, { "include": "#sign_any" }, { "include": "#quotation" }]
+        }
+      ]
+    },
+    "sign_option": {
+      "patterns": [
+        {
+          "name": "storage.type.sign_option.mml",
+          "match": "#(?i:option)\\s*\\S*"
+        }
+      ]
+    },
+    "sign_define": {
+      "patterns": [
+        {
+          "match": "(#(?:define|undef|ifdef|ifndef|if))\\s+(\\S*)",
+          "captures": {
+            "1": { "name": "keyword.control.sign_define.mml" },
+            "2": { "name": "variable.parameter.mml" }
+          }
+        }
+      ]
+    },
+    "sign_endif": {
+      "patterns": [
+        {
+          "name": "keyword.control.sign_endif.mml",
+          "match": "#(?:endif|error)"
+        }
+      ]
+    },
+    "sign_any": {
+      "patterns": [
+        {
+          "name": "storage.type.sign_any.mml",
+          "match": "#\\S*"
+        }
+      ]
+    },
+    "loop_recall": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.loop_recall.mml",
+          "match": "\\*\\d*"
+        }
+      ]
+    },
+    "hex_command": {
+      "patterns": [
+        {
+          "name": "entity.name.function.hex_command.mml",
+          "match": "\\$[a-fA-F\\d]*"
+        }
+      ]
+    },
+    "quantization": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.quantization.mml",
+          "match": "[qQ][a-fA-F\\d]*"
+        }
+      ]
+    },
+    "noise": {
+      "patterns": [
+        {
+          "name": "entity.name.type.noise.mml",
+          "match": "[nN][a-fA-F\\d]*"
+        }
+      ]
+    },
+    "note": {
+      "patterns": [
+        {
+          "name": "constant.character.note.mml",
+          "match": "[a-gA-G][\\+\\-]?[\\=\\.\\d]*"
+        }
+      ]
+    },
+    "rest": {
+      "patterns": [
+        {
+          "name": "constant.character.rest.mml",
+          "match": "r[\\=\\.\\d]*"
+        }
+      ]
+    },
+    "tie": {
+      "patterns": [
+        {
+          "name": "constant.character.tie.mml",
+          "match": "\\^[\\=\\.\\d]*"
+        }
+      ]
+    },
+    "tune": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.tune.mml",
+          "match": "[hH]\\-?\\d*"
+        }
+      ]
+    },
+    "octave": {
+      "patterns": [
+        {
+          "name": "constant.character.octave.mml",
+          "match": "[oO]\\d*"
+        }
+      ]
+    },
+    "default_length": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.default_length.mml",
+          "match": "[lL]\\d*"
+        }
+      ]
+    },
+    "instrument": {
+      "patterns": [
+        {
+          "name": "entity.name.type.instrument.mml",
+          "match": "@\\d*"
+        }
+      ]
+    },
+    "volume": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.volume.mml",
+          "match": "[vV]\\d*"
+        }
+      ]
+    },
+    "global_volume": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.global_volume.mml",
+          "match": "[wW]\\d*"
+        }
+      ]
+    },
+    "pan": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.pan.mml",
+          "match": "[yY][\\,\\d]*"
+        }
+      ]
+    },
+    "tempo": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.pan.mml",
+          "match": "[tT]\\d*"
+        }
+      ]
+    },
+    "vibrato": {
+      "patterns": [
+        {
+          "name": "constant.character.escape.vibrato.mml",
+          "match": "[pP][\\,\\d]*"
+        }
+      ]
+    },
+    "num": {
+      "patterns": [
+        {
+          "name": "constant.numeric.mml",
+          "match": "\\d+"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.mml"
+}
