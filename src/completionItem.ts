@@ -192,7 +192,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
     "mml",
     {
       provideCompletionItems(doc: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
-        let specialCompletionItems: vscode.CompletionItem[] = [];
+        let sampleCompletionItems: vscode.CompletionItem[] = [];
 
         let curlyBracesType: CurlyBracesType = "NONE";
 
@@ -336,7 +336,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
               for (const sample of fs.readdirSync((vscode.workspace.getConfiguration("mmlamktoolkit").get("AddmusickPath") as string) + "\\samples" + samplePath)) {
                 let completionItem = new vscode.CompletionItem(sample, vscode.CompletionItemKind.File);
                 completionItem.insertText = new vscode.SnippetString(sample + '"');
-                specialCompletionItems.push(completionItem);
+                sampleCompletionItems.push(completionItem);
               }
             }
             break;
@@ -344,7 +344,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
             for (const sample of sampleArray) {
               let completionItem = new vscode.CompletionItem(sample, vscode.CompletionItemKind.Variable);
               completionItem.insertText = new vscode.SnippetString(sample + '" $${1:aa} $${2:bb} $${3:cc} $${4:dd} $${5:ee}');
-              specialCompletionItems.push(completionItem);
+              sampleCompletionItems.push(completionItem);
             }
             break;
           case "NONE":
@@ -352,14 +352,14 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
               for (const sample of sampleArray) {
                 let completionItem = new vscode.CompletionItem(sample, vscode.CompletionItemKind.Variable);
                 completionItem.insertText = new vscode.SnippetString(sample + '", $${1:00}');
-                specialCompletionItems.push(completionItem);
+                sampleCompletionItems.push(completionItem);
               }
             } else {
-              specialCompletionItems = [];
+              sampleCompletionItems = [];
             }
             break;
         }
-        let completionList = new vscode.CompletionList(specialCompletionItems, false);
+        let completionList = new vscode.CompletionList(sampleCompletionItems, false);
         return Promise.resolve(completionList);
       },
     },
@@ -511,13 +511,13 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
               {
                 label: "samples",
                 kind: vscode.CompletionItemKind.Snippet,
-                insertText: new vscode.SnippetString('samples\n{\n\t#optimized\n\t"${1:sample1.brr}"\n}'),
+                insertText: new vscode.SnippetString("samples\n{\n\t#optimized\n\t\n}"),
                 documentation: new vscode.MarkdownString(hoverMap.signSamples),
               },
               {
                 label: "instruments",
                 kind: vscode.CompletionItemKind.Snippet,
-                insertText: new vscode.SnippetString('instruments\n{\n\t"${1:sample1.brr}" $${2:aa} $${3:bb} $${4:cc} $${5:dd} $${6:ee}\n}'),
+                insertText: new vscode.SnippetString("instruments\n{\n\t\n}"),
                 documentation: new vscode.MarkdownString(hoverMap.signInstruments),
               },
               {
@@ -709,7 +709,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
           {
             label: "$E6 $00 (Subloop start)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("E6 $00"),
+            insertText: new vscode.SnippetString("E6 \\$00"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandE600),
           },
           {
@@ -763,7 +763,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
           {
             label: "$ED $80 (GAIN)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("ED $80 $${1:YY}"),
+            insertText: new vscode.SnippetString("ED \\$80 $${1:YY}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandED80),
           },
           {
@@ -805,55 +805,55 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
           {
             label: "$F4 $00 (Yoshi drums)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $00"),
+            insertText: new vscode.SnippetString("F4 \\$00"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF400),
           },
           {
             label: "$F4 $01 (Legato)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $01"),
+            insertText: new vscode.SnippetString("F4 \\$01"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF401),
           },
           {
             label: "$F4 $02 (Light staccato)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $02"),
+            insertText: new vscode.SnippetString("F4 \\$02"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF402),
           },
           {
             label: "$F4 $03 (Echo toggle)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $03"),
+            insertText: new vscode.SnippetString("F4 \\$03"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF403),
           },
           {
             label: "$F4 $05 (SNES sync)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $05"),
+            insertText: new vscode.SnippetString("F4 \\$05"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF405),
           },
           {
             label: "$F4 $06 (Yoshi drums)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $06"),
+            insertText: new vscode.SnippetString("F4 \\$06"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF406),
           },
           {
             label: "$F4 $07 (Tempo hike off)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $07"),
+            insertText: new vscode.SnippetString("F4 \\$07"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF407),
           },
           {
             label: "$F4 $08 (Velocity table)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $08"),
+            insertText: new vscode.SnippetString("F4 \\$08"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF408),
           },
           {
             label: "$F4 $09 (Restore instrument)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("F4 $09"),
+            insertText: new vscode.SnippetString("F4 \\$09"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandF409),
           },
           {
@@ -883,31 +883,31 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
           {
             label: "$FA $00 (Pitch modulation)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FA $00 $${1:XX}"),
+            insertText: new vscode.SnippetString("FA \\$00 $${1:XX}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA00),
           },
           {
             label: "$FA $01 (GAIN)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FA $01 $${1:XX}"),
+            insertText: new vscode.SnippetString("FA \\$01 $${1:XX}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA01),
           },
           {
             label: "$FA $02 (Semitone tune)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FA $02 $${1:XX}"),
+            insertText: new vscode.SnippetString("FA \\$02 $${1:XX}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA02),
           },
           {
             label: "$FA $03 (Amplify)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FA $03 $${1:XX}"),
+            insertText: new vscode.SnippetString("FA \\$03 $${1:XX}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA03),
           },
           {
             label: "$FA $04 (Echo buffer reserve)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FA $04 $${1:XX}"),
+            insertText: new vscode.SnippetString("FA \\$04 $${1:XX}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA04),
           },
           {
@@ -919,13 +919,13 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
           {
             label: "$FB $80 (Trill)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FB $80 $${1:YY} $${2:ZZ}"),
+            insertText: new vscode.SnippetString("FB \\$80 $${1:YY} $${2:ZZ}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFB80),
           },
           {
             label: "$FB $81 (Glissando)",
             kind: vscode.CompletionItemKind.Method,
-            insertText: new vscode.SnippetString("FB $81 $${1:YY} $${2:ZZ}"),
+            insertText: new vscode.SnippetString("FB \\$81 $${1:YY} $${2:ZZ}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFB81),
           },
           {
