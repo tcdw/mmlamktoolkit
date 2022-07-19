@@ -4,15 +4,25 @@ This extension provides features to help you edit MML for AddmusicK.
 
 ## Features
 
-If you want to use this extension for the first time, you need to set the AddmusicK path in the config.
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
+If you want to use this extension for the first time, you need to set the AddmusicK path in the config. At the first startup, the following warning message will appear.
 
 ![img00](images/img00.png)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+You can set the path of AddmusicK by clicking the "Go to Config" button.
+
+![img00](images/img01.png)
+
+This setting is used for referencing the sample file (.brr).
+
+### Syntax Highlight
+
+### Semantic Highlight (Only Dark+ theme)
+
+### Diagnostics
+
+### Auto Completion
+
+### Hover
 
 ## Requirements
 
