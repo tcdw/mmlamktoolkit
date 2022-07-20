@@ -357,7 +357,14 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
                 sampleCompletionItems.push(completionItem);
               }
             } else {
-              sampleCompletionItems = [];
+              sampleCompletionItems = [
+                {
+                  label: '"=" (Replacement)',
+                  kind: vscode.CompletionItemKind.Keyword,
+                  insertText: new vscode.SnippetString('${1:var}="'),
+                  documentation: new vscode.MarkdownString(hoverMap.replacement),
+                },
+              ];
             }
             break;
         }
