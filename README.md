@@ -34,13 +34,21 @@ Diagnostics is displayed for descriptions in which AddmusicK produces an error (
 
 ![gif00](images/gif00.gif)
 
-![img06](images/img06.png) ![img05](images/img05.png)
+![img05](images/img05.png)
+
+![img06](images/img06.png)
 
 ### Auto Completion
+
+To assist with input, display completions such as Hex command and Special command.
 
 ![gif01](images/gif01.gif)
 
 ### Hover
+
+Displays information about the command on mouse hover. (From AddmusicK Readme)
+
+Some commands display the current instrument, octave, and contents of loops, etc.
 
 ![gif02](images/gif02.gif)
 
