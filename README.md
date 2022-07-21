@@ -58,7 +58,7 @@ Some commands display the current instrument, octave, and contents of loops, etc
 
 ---
 
-See Changelog to see all features.
+See [Feature List](FEATURELIST.md) to see all features.
 
 ## Planned Features
 
