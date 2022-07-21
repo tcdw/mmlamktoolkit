@@ -26,7 +26,7 @@ This setting is used for referencing the sample file (.brr).
 
 ### Diagnostics
 
-![gif00](images/gif00.png)
+![gif00](images/gif00.gif)
 
 ![img05](images/img05.png)
 
@@ -34,11 +34,11 @@ This setting is used for referencing the sample file (.brr).
 
 ### Auto Completion
 
-![gif01](images/gif01.png)
+![gif01](images/gif01.gif)
 
 ### Hover
 
-![gif02](images/gif02.png)
+![gif02](images/gif02.gif)
 
 ![img07](images/img07.png)
 
