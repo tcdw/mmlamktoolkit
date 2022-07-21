@@ -1555,7 +1555,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 }
                 //Range check(0-255)
                 else if (!(0 <= parseInt(match.groups.volumeValue) && parseInt(match.groups.volumeValue) <= 255)) {
-                  diagnostics.push(createDiagnostic(lineIndex, match, 'Illegal value for global volume ("v") command.\nValid values are 0 to 255.'));
+                  diagnostics.push(createDiagnostic(lineIndex, match, 'Illegal value for volume ("v") command.\nValid values are 0 to 255.'));
                 }
               }
 
