@@ -12,11 +12,11 @@
 
   - Replacement ("=")
 
-  - Sample load ("",$)
+  - Sample load (("",$))
 
   - Path (#path "")
 
-  - Illegal Loop command (\[\[\[\]\]\])
+  - Illegal Loop command (\[\[\[ \]\]\])
 
   - Samples (#samples {})
 
@@ -91,3 +91,26 @@
   - Vibrato (p)
 
   - Any number
+
+- Semantic Highlight (Only Dark+ theme)
+
+  - Replacement call
+
+  - Hex command ($)
+
+    - Highlight the beginning of the Hex command.
+
+  - Note (c,d,e,f,g,a,b)
+
+    - Color-coding by octave.
+
+  - Rest (r)
+
+  - Octave (o)
+
+    - Color-coding by octave.
+
+- Diagnostics
+- Auto Completion
+
+- Hover
