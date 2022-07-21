@@ -30,11 +30,11 @@ Compare the following two images.
 
 ### Diagnostics
 
+Diagnostics is displayed for descriptions in which AddmusicK produces an error (e.g., if the value is empty or the limit is exceeded).
+
 ![gif00](images/gif00.gif)
 
-![img05](images/img05.png)
-
-![img06](images/img06.png)
+![img06](images/img06.png) ![img05](images/img05.png)
 
 ### Auto Completion
 
