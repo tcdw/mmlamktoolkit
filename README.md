@@ -26,6 +26,7 @@ Highlight Replacements that cannot be supported by Syntax Highlight, highlight t
 
 Left : Without Semantic Highlight
 Right : With Semantic Highlight
+
 ![img03](images/img03.png) ![img04](images/img04.png)
 
 ### Diagnostics
