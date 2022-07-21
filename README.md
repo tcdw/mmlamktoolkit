@@ -56,4 +56,6 @@ Some commands display the current instrument, octave, and contents of loops, etc
 
 ![img07](images/img07.png)
 
+---
+
 See Changelog to see all features.
