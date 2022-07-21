@@ -16,10 +16,16 @@ This setting is used for referencing the sample file (.brr).
 
 ### Syntax Highlight
 
+Improve the readability of your MML by highlighting.
+
 ![img02](images/img02.png)
 
 ### Semantic Highlight (Only Dark+ theme)
 
+Highlight Replacements that cannot be supported by Syntax Highlight, highlight the beginning of the Hex command, and color-coding by octave.
+
+Left : Without Semantic Highlight
+Right : With Semantic Highlight
 ![img03](images/img03.png) ![img04](images/img04.png)
 
 ### Diagnostics
