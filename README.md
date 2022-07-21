@@ -20,9 +20,7 @@ This setting is used for referencing the sample file (.brr).
 
 ### Semantic Highlight (Only Dark+ theme)
 
-![img03](images/img03.png)
-
-![img04](images/img04.png)
+![img03](images/img03.png) ![img04](images/img04.png)
 
 ### Diagnostics
 
