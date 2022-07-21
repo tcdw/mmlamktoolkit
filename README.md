@@ -10,19 +10,37 @@ If you want to use this extension for the first time, you need to set the Addmus
 
 You can set the path of AddmusicK by clicking the "Go to Config" button.
 
-![img00](images/img01.png)
+![img01](images/img01.png)
 
 This setting is used for referencing the sample file (.brr).
 
 ### Syntax Highlight
 
+![img02](images/img02.png)
+
 ### Semantic Highlight (Only Dark+ theme)
+
+![img03](images/img03.png)
+
+![img04](images/img04.png)
 
 ### Diagnostics
 
+![gif00](images/gif00.png)
+
+![img05](images/img05.png)
+
+![img06](images/img06.png)
+
 ### Auto Completion
 
+![gif01](images/gif01.png)
+
 ### Hover
+
+![gif02](images/gif02.png)
+
+![img07](images/img07.png)
 
 ## Requirements
 
