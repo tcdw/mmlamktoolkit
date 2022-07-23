@@ -1437,6 +1437,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   diagnostics.push(createDiagnostic(lineIndex, match, "Note's pitch was too high."));
                 }
 
+                if (hexMatch !== undefined && hexMatch[0] === "$DD" && hexCount === 3) {
+                  hexMatch = undefined;
+                }
+
                 function noteToPitch(note: string): number {
                   switch (note) {
                     case "c-":
@@ -1727,6 +1731,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 } else if (6 < octave) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been raised too high."));
                 }
+
+                if (hexMatch !== undefined && hexMatch[0] === "$DD" && hexCount === 3) {
+                  isHex = true;
+                }
               }
 
               //octaveRaise(>)
@@ -1738,6 +1746,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been dropped too low."));
                 } else if (6 < octave) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been raised too high."));
+                }
+
+                if (hexMatch !== undefined && hexMatch[0] === "$DD" && hexCount === 3) {
+                  isHex = true;
                 }
               }
 
