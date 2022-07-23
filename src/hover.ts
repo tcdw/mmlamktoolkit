@@ -1623,7 +1623,7 @@ export class MmlHoverProvider {
             } else if (position.character < shiftedIndex.index) {
               return Promise.reject("no word here");
             } else {
-              return Promise.resolve(new vscode.Hover("**Replacement call**\n\n*Value :*\n```\n" + replacement + "\n```"));
+              return Promise.resolve(new vscode.Hover("**Replacement call**\n\n*Value :*\n```\n" + replacement.value + "\n```"));
             }
           }
         }

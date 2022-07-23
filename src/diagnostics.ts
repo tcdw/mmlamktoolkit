@@ -202,7 +202,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                     sampleName = sampleName.substring(sampleName.indexOf("/") + 1);
                   }
                   if (!fs.existsSync((vscode.workspace.getConfiguration("mmlamktoolkit").get("AddmusickPath") as string) + "\\samples" + sampleDir) || !fs.readdirSync((vscode.workspace.getConfiguration("mmlamktoolkit").get("AddmusickPath") as string) + "\\samples" + sampleDir).includes(sampleName)) {
-                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1)), "Could not find sample " + text.substring(quotationMatch.index + 1, match.index)));
+                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1, true)), "Could not find sample " + text.substring(quotationMatch.index + 1, match.index)));
                   }
                   sampleArray.push(text.substring(quotationMatch.index + 1, match.index));
                   quotationMatch = undefined;
@@ -269,9 +269,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
                 if (hexMatch === undefined) {
-                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                 } else if (hexCount < 5) {
-                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                 }
                 hexCount = 0;
                 hexMatch = undefined;
@@ -287,9 +287,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                   if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
                     if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     }
                     hexCount = 0;
                     hexMatch = undefined;
@@ -298,7 +298,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   if (sampleArray.includes(text.substring(quotationMatch.index + 1, match.index))) {
                     instrumentCount++;
                   } else {
-                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1)), "Could not find sample " + text.substring(quotationMatch.index + 1, match.index)));
+                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1, true)), "Could not find sample " + text.substring(quotationMatch.index + 1, match.index)));
                   }
                   quotationMatch = undefined;
                 }
@@ -321,9 +321,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                   if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
                     if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     }
                     hexCount = 0;
                     hexMatch = undefined;
@@ -345,9 +345,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                   if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
                     if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
                     }
                     hexCount = 0;
                     hexMatch = undefined;
@@ -447,10 +447,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       let lengthMatch = undefined;
                       if ((lengthMatch = text.substring(quotationMatch.index + 1, match.index).match(/^(\d+)\:(\d+)$/)) !== null) {
                         if (parseInt(lengthMatch[1]) * 60 + parseInt(lengthMatch[2]) > 999) {
-                          diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 2)), "Songs longer than 16:39 are not allowed by the SPC format."));
+                          diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 2, true)), "Songs longer than 16:39 are not allowed by the SPC format."));
                         }
                       } else {
-                        diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 2)), 'Error parsing SPC length field. Format must be m:ss or "auto".'));
+                        diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 2, true)), 'Error parsing SPC length field. Format must be m:ss or "auto".'));
                       }
                     }
                   }
@@ -568,7 +568,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   pathName = pathName.substring(pathName.indexOf("/") + 1);
                 }
                 if (!fs.existsSync((vscode.workspace.getConfiguration("mmlamktoolkit").get("AddmusickPath") as string) + "\\samples" + pathDir) || !fs.readdirSync((vscode.workspace.getConfiguration("mmlamktoolkit").get("AddmusickPath") as string) + "\\samples" + pathDir).includes(pathName)) {
-                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1)), "Could not find directory " + text.substring(quotationMatch.index + 1, match.index)));
+                  diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index + 1, true)), "Could not find directory " + text.substring(quotationMatch.index + 1, match.index)));
                 } else {
                   samplePath = "\\" + text.substring(quotationMatch.index + 1, match.index).replace("/", "\\");
                 }
@@ -1763,13 +1763,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
         if (!isHex && hexMatch !== undefined) {
           if (!inReplacement) {
-            diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length)), "Invalid hex command"));
+            diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length, true)), "Invalid hex command"));
           }
           hexMatch = undefined;
         }
 
         if (!isUnexpected && unexpectedMatch !== undefined) {
-          diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (unexpectedMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index)), getUnexpectedErrorText()));
+          diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (unexpectedMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), getUnexpectedErrorText()));
           unexpectedMatch = undefined;
         }
 
@@ -1779,7 +1779,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
     }
 
     if (quotationMatch !== undefined) {
-      diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, text.length)), "Unexpected end of file found."));
+      diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (quotationMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, text.length, true)), "Unexpected end of file found."));
     }
 
     if (inReplacement) {
@@ -1791,7 +1791,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
     }
 
     if (unexpectedMatch !== undefined) {
-      diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (unexpectedMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, text.length)), getUnexpectedErrorText()));
+      diagnostics.push(createDiagnosticWithRange(new vscode.Range(lineIndex, getShiftedIndex(lineIndex, (unexpectedMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, text.length, true)), getUnexpectedErrorText()));
     }
 
     /**
@@ -1897,7 +1897,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
   }
 
   if (!existAmk) {
-    diagnostics.push(createDiagnosticWithRange(new vscode.Range(0, 0, doc.lineCount - 1, getShiftedIndex(doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length)), "Song did not specify target program with #amk, #am4, or #amm."));
+    diagnostics.push(createDiagnosticWithRange(new vscode.Range(0, 0, doc.lineCount - 1, getShiftedIndex(doc.lineCount - 1, doc.lineAt(doc.lineCount - 1).text.length, true)), "Song did not specify target program with #amk, #am4, or #amm."));
   }
 
   if (0 < defineIfDepth) {
@@ -1937,7 +1937,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
     return new vscode.Range(lineIndex, match.index + shift, lineIndex, match.index + shift + match[0].length);
   }
 
-  function getShiftedIndex(lineIndex: number, index: number): number {
+  function getShiftedIndex(lineIndex: number, index: number, isEnd?: boolean): number {
     let shift = 0;
     for (const replacementIndexShift of replacementIndexShiftArray[lineIndex]) {
       //pre replacement
@@ -1946,7 +1946,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
       }
       //in replacement
       else if (index < replacementIndexShift.endValue) {
-        return replacementIndexShift.start + shift;
+        return (isEnd ? replacementIndexShift.endKey : replacementIndexShift.start) + shift;
       }
       //post replacement
       else {
