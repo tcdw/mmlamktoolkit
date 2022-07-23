@@ -10,11 +10,11 @@ export const regexMap = {
   signPad: "(?<signPad>#[p|P][a|A][d|D]\\s+(?<signPadValue>[a-fA-F\\d]*))",
   signHalvetempo: "(?<signHalvetempo>#[h|H][a|A][l|L][v|V][e|E][t|T][e|E][m|M][p|P][o|O])",
   signOption: "(?<signOption>#[o|O][p|P][t|T][i|I][o|O][n|N]\\s+(?<signOptionValue>\\S*))",
-  signDefine: "(?<signDefine>#define\\s+(?<signDefineValue1>\\S*)(?<signDefineValueAdditional>\\s+(?<signDefineValue2>[\\d\\-]*))?)",
+  signDefine: "(?<signDefine>#define\\s+(?<signDefineValue1>\\S*)(?<signDefineValueAdditional>\\s+(?<signDefineValue2>\\-?\\d*))?)",
   signUndef: "(?<signUndef>#undef\\s+(?<signUndefValue>\\S*))",
   signIfdef: "(?<signIfdef>#ifdef\\s+(?<signIfdefValue>\\S*))",
   signIfndef: "(?<signIfndef>#ifndef\\s+(?<signIfndefValue>\\S*))",
-  signIf: "(?<signIf>#if\\s+(?<signIfValue1>\\S*)\\s+(?<signIfValue2>\\S*)\\s+(?<signIfValue3>[\\d\\-]*))",
+  signIf: "(?<signIf>#if\\s+(?<signIfValue1>\\S*)\\s+(?<signIfValue2>\\S*)\\s+(?<signIfValue3>\\-?\\d*))",
   signEndif: "(?<signEndif>#endif)",
   signError: "(?<signError>#error)",
   channel: "(?<channel>#(?<channelValue>\\d+))",
@@ -189,4 +189,4 @@ export const hoverMap = {
   loopPoint: '**Intro** /\n\nThis will mark the intro to this song. An intro only plays once; when a song "ends" it will jump back to the position specified by this intro marker (if this command is not specified, then it simply jumps back to the song\'s start).',
 };
 
-export type CurlyBracesType = "SAMPLES" | "INSTRUMENTS" | "SPC" | "NONE";
+export type CurlyBracesType = "SAMPLES" | "INSTRUMENTS" | "SPC" | "NONE" | "SIGNIF";

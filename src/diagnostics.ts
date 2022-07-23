@@ -22,6 +22,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
   //Define
   let defineArray: { var: string; value: number }[] = new Array();
   let defineIfDepth = 0;
+  let defineIfDepthType: CurlyBracesType[] = [];
   let defineIfLineIndex = 0;
   let defineIfMatch = undefined;
 
@@ -76,7 +77,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
   //HexCommand
   let hexCount = 0;
   let hexLineIndex = 0;
-  let hexMatch = undefined;
+  let hexMatch: RegExpExecArray | undefined = undefined;
   let arpeggioCount = 0;
 
   for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
@@ -105,7 +106,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
     while (replacementMap.length > 0 && (replacementKeyMatch = getReplacementRegexMap().exec(text)) !== null) {
       for (const r of replacementMap) {
         if (replacementKeyMatch !== null && r.key === replacementKeyMatch[0]) {
-          let replacementDefRegex = /(?<=\").+(?=\=.*\")/g;
+          let replacementDefRegex = /(?<=\"\s*)\S+(?=\s*\=.*\")|(?<=#(?:define|undef|ifdef|ifndef|if)\s*)\S+/g;
           let inReplacementDef = false;
           let replacementDefMatch;
           while ((replacementDefMatch = replacementDefRegex.exec(text)) !== null) {
@@ -211,8 +212,173 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               //quotationMatch check
               else if (quotationMatch === undefined) {
+                //signDefine(#define)
+                if (match.groups.signDefine !== undefined) {
+                  //Empty check
+                  if (match.groups.signDefineValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signDefineValue1;
+                    if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                        );
+                      } else {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: 1 }
+                        );
+                      }
+                    } else {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                      } else {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                      }
+                    }
+                  }
+                }
+
+                //signUndef(#undef)
+                else if (match.groups.signUndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signUndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signUndefValue;
+                    defineArray = defineArray.filter((define) => define.var !== defineVar);
+                  }
+                }
+
+                //signIfdef(#ifdef)
+                else if (match.groups.signIfdef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfdefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
+                  } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signIfndef(#ifndef)
+                else if (match.groups.signIfndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
+                  } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signIf(#if)
+                else if (match.groups.signIf !== undefined) {
+                  //Value1
+                  //Empty check
+                  if (match.groups.signIfValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    if (defineArray.find((define) => define.var === defineVar) === undefined) {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined."));
+                    }
+                  }
+
+                  if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
+                    //Value2
+                    //Empty check
+                    if (match.groups.signIfValue2 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
+                    }
+
+                    //Value3
+                    //Empty check
+                    if (match.groups.signIfValue3 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+                    }
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    let defineValue;
+                    let defineFlg = false;
+                    if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                      switch (match.groups.signIfValue2) {
+                        case "==":
+                          if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<":
+                          if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">":
+                          if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<=":
+                          if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">=":
+                          if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "!=":
+                          if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        default:
+                          diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
+                          break;
+                      }
+                      if (defineFlg) {
+                        defineIfDepthType.push(curlyBracesType);
+                        curlyBracesType = "SIGNIF";
+                      }
+                    }
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signEndif(#endif)
+                else if (match.groups.signEndif !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "There was an #endif without a matching #ifdef, #ifndef, or #if."));
+                  } else {
+                    defineIfDepth--;
+                  }
+                }
+
+                //signError(#error)
+                else if (match.groups.signError !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "You'll want to use this with #ifs, #ifdefs, etc."));
+                  }
+                }
+
                 //signSampleGroup(#)
-                if (match.groups.signAny !== undefined) {
+                else if (match.groups.signAny !== undefined) {
                   //Through
                 }
 
@@ -280,15 +446,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 if (quotationMatch === undefined) {
                   quotationMatch = match;
 
-                  if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
-                    if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    }
-                    hexCount = 0;
-                    hexMatch = undefined;
-                  }
+                  hexCheck(previousMatch, match);
                 } else {
                   if (sampleArray.includes(text.substring(quotationMatch.index + 1, match.index))) {
                     instrumentCount++;
@@ -301,8 +459,187 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               //quotationMatch check
               else if (quotationMatch === undefined) {
+                //signDefine(#define)
+                if (match.groups.signDefine !== undefined) {
+                  //Empty check
+                  if (match.groups.signDefineValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signDefineValue1;
+                    if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                        );
+                      } else {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: 1 }
+                        );
+                      }
+                    } else {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                      } else {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                      }
+                    }
+                  }
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signUndef(#undef)
+                else if (match.groups.signUndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signUndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signUndefValue;
+                    defineArray = defineArray.filter((define) => define.var !== defineVar);
+                  }
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signIfdef(#ifdef)
+                else if (match.groups.signIfdef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfdefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
+                  } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signIfndef(#ifndef)
+                else if (match.groups.signIfndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
+                  } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signIf(#if)
+                else if (match.groups.signIf !== undefined) {
+                  //Value1
+                  //Empty check
+                  if (match.groups.signIfValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    if (defineArray.find((define) => define.var === defineVar) === undefined) {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined."));
+                    }
+                  }
+
+                  if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
+                    //Value2
+                    //Empty check
+                    if (match.groups.signIfValue2 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
+                    }
+
+                    //Value3
+                    //Empty check
+                    if (match.groups.signIfValue3 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+                    }
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    let defineValue;
+                    let defineFlg = false;
+                    if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                      switch (match.groups.signIfValue2) {
+                        case "==":
+                          if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<":
+                          if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">":
+                          if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<=":
+                          if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">=":
+                          if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "!=":
+                          if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        default:
+                          diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
+                          break;
+                      }
+                      if (defineFlg) {
+                        defineIfDepthType.push(curlyBracesType);
+                        curlyBracesType = "SIGNIF";
+                      }
+                    }
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signEndif(#endif)
+                else if (match.groups.signEndif !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "There was an #endif without a matching #ifdef, #ifndef, or #if."));
+                  } else {
+                    defineIfDepth--;
+                  }
+
+                  hexCheck(previousMatch, match);
+                }
+
+                //signError(#error)
+                else if (match.groups.signError !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "You'll want to use this with #ifs, #ifdefs, etc."));
+                  }
+
+                  hexCheck(previousMatch, match);
+                }
+
                 //instrument(@)
-                if (match.groups.instrument !== undefined) {
+                else if (match.groups.instrument !== undefined) {
                   //Empty check
                   if (match.groups.instrumentValue === "") {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing the instrument copy portion of the instrument command.\nValue is empty."));
@@ -314,15 +651,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                     instrumentCount++;
                   }
 
-                  if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
-                    if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    }
-                    hexCount = 0;
-                    hexMatch = undefined;
-                  }
+                  hexCheck(previousMatch, match);
                 }
 
                 //noise(n)
@@ -338,15 +667,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                     instrumentCount++;
                   }
 
-                  if (!isHex && previousMatch?.groups?.curlyBracesBegin === undefined) {
-                    if (hexMatch === undefined) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    } else if (hexCount < 5) {
-                      diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
-                    }
-                    hexCount = 0;
-                    hexMatch = undefined;
-                  }
+                  hexCheck(previousMatch, match);
                 }
 
                 //hexCommand($)
@@ -381,6 +702,28 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                     unexpectedMatch = match;
                   }
                   isUnexpected = true;
+                }
+              }
+
+              function hexCheck(previousMatch: RegExpExecArray | undefined, match: RegExpExecArray) {
+                if (
+                  !isHex &&
+                  previousMatch?.groups?.curlyBracesBegin === undefined &&
+                  previousMatch?.groups?.signDefine === undefined &&
+                  previousMatch?.groups?.signUndef === undefined &&
+                  previousMatch?.groups?.signIfdef === undefined &&
+                  previousMatch?.groups?.signIfndef === undefined &&
+                  previousMatch?.groups?.signIf === undefined &&
+                  previousMatch?.groups?.signEndif === undefined &&
+                  previousMatch?.groups?.signError === undefined
+                ) {
+                  if (hexMatch === undefined) {
+                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(previousLineIndex, getShiftedIndex(previousLineIndex, (previousMatch as RegExpExecArray).index + (previousMatch as RegExpExecArray)[0].length), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                  } else if (hexCount < 5) {
+                    diagnostics.push(createDiagnosticWithRange(new vscode.Range(hexLineIndex, getShiftedIndex(hexLineIndex, (hexMatch as RegExpExecArray).index), lineIndex, getShiftedIndex(lineIndex, match.index, true)), "Error parsing instrument definition.\nMust have 5 arguments."));
+                  }
+                  hexCount = 0;
+                  hexMatch = undefined;
                 }
               }
             }
@@ -457,8 +800,173 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               //quotationMatch check
               else if (quotationMatch === undefined) {
+                //signDefine(#define)
+                if (match.groups.signDefine !== undefined) {
+                  //Empty check
+                  if (match.groups.signDefineValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signDefineValue1;
+                    if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                        );
+                      } else {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: 1 }
+                        );
+                      }
+                    } else {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                      } else {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                      }
+                    }
+                  }
+                }
+
+                //signUndef(#undef)
+                else if (match.groups.signUndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signUndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
+                  } else {
+                    let defineVar = match.groups.signUndefValue;
+                    defineArray = defineArray.filter((define) => define.var !== defineVar);
+                  }
+                }
+
+                //signIfdef(#ifdef)
+                else if (match.groups.signIfdef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfdefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
+                  } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signIfndef(#ifndef)
+                else if (match.groups.signIfndef !== undefined) {
+                  //Empty check
+                  if (match.groups.signIfndefValue === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
+                  } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signIf(#if)
+                else if (match.groups.signIf !== undefined) {
+                  //Value1
+                  //Empty check
+                  if (match.groups.signIfValue1 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    if (defineArray.find((define) => define.var === defineVar) === undefined) {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined."));
+                    }
+                  }
+
+                  if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
+                    //Value2
+                    //Empty check
+                    if (match.groups.signIfValue2 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
+                    }
+
+                    //Value3
+                    //Empty check
+                    if (match.groups.signIfValue3 === "") {
+                      diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+                    }
+                  } else {
+                    let defineVar = match.groups.signIfValue1;
+                    let defineValue;
+                    let defineFlg = false;
+                    if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                      switch (match.groups.signIfValue2) {
+                        case "==":
+                          if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<":
+                          if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">":
+                          if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<=":
+                          if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">=":
+                          if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "!=":
+                          if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        default:
+                          diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
+                          break;
+                      }
+                      if (defineFlg) {
+                        defineIfDepthType.push(curlyBracesType);
+                        curlyBracesType = "SIGNIF";
+                      }
+                    }
+                  }
+
+                  defineIfDepth++;
+                  defineIfMatch = match;
+                  defineIfLineIndex = lineIndex;
+                }
+
+                //signEndif(#endif)
+                else if (match.groups.signEndif !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "There was an #endif without a matching #ifdef, #ifndef, or #if."));
+                  } else {
+                    defineIfDepth--;
+                  }
+                }
+
+                //signError(#error)
+                else if (match.groups.signError !== undefined) {
+                  if (defineIfDepth <= 0) {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "You'll want to use this with #ifs, #ifdefs, etc."));
+                  }
+                }
+
                 //signInfo(#)
-                if (match.groups.signInfo !== undefined) {
+                else if (match.groups.signInfo !== undefined) {
                   if (specialMatch !== undefined) {
                     diagnostics.push(createDiagnostic(specialLineIndex, specialMatch, "Unexpected symbol found in SPC info command.  Expected a quoted string."));
                   }
@@ -498,6 +1006,78 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 unexpectedMatch = match;
               }
               isUnexpected = true;
+            }
+            break;
+
+          //in signIf
+          case "SIGNIF":
+            //signIfdef(#ifdef)
+            if (match.groups.signIfdef !== undefined) {
+              //Empty check
+              if (match.groups.signIfdefValue === "") {
+                diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
+              }
+
+              defineIfDepthType.push(curlyBracesType);
+              defineIfDepth++;
+              defineIfMatch = match;
+              defineIfLineIndex = lineIndex;
+            }
+
+            //signIfndef(#ifndef)
+            else if (match.groups.signIfndef !== undefined) {
+              //Empty check
+              if (match.groups.signIfndefValue === "") {
+                diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
+              }
+
+              defineIfDepthType.push(curlyBracesType);
+              defineIfDepth++;
+              defineIfMatch = match;
+              defineIfLineIndex = lineIndex;
+            }
+
+            //signIf(#if)
+            else if (match.groups.signIf !== undefined) {
+              //Value1
+              //Empty check
+              if (match.groups.signIfValue1 === "") {
+                diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
+              } else {
+                let defineVar = match.groups.signIfValue1;
+                if (defineArray.find((define) => define.var === defineVar) === undefined) {
+                  diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined."));
+                }
+              }
+
+              //Value2
+              //Empty check
+              if (match.groups.signIfValue2 === "") {
+                diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
+              } else if (!match.groups.signIfValue2.match(/^(?:\=\=|\<|\>|\<\=|\>\=|\!\=)$/)) {
+                diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
+              }
+
+              //Value3
+              //Empty check
+              if (match.groups.signIfValue3 === "") {
+                diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+              }
+
+              defineIfDepthType.push(curlyBracesType);
+              defineIfDepth++;
+              defineIfMatch = match;
+              defineIfLineIndex = lineIndex;
+            }
+
+            //signEndif(#endif)
+            else if (match.groups.signEndif !== undefined) {
+              if (defineIfDepth <= 0) {
+                diagnostics.push(createDiagnostic(lineIndex, match, "There was an #endif without a matching #ifdef, #ifndef, or #if."));
+              } else {
+                curlyBracesType = defineIfDepthType.pop() ?? "SIGNIF";
+                defineIfDepth--;
+              }
             }
             break;
 
@@ -727,6 +1307,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //Empty check
                 if (match.groups.signIfdefValue === "") {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
+                } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                  defineIfDepthType.push(curlyBracesType);
+                  curlyBracesType = "SIGNIF";
                 }
 
                 defineIfDepth++;
@@ -739,6 +1322,9 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //Empty check
                 if (match.groups.signIfndefValue === "") {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
+                } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                  defineIfDepthType.push(curlyBracesType);
+                  curlyBracesType = "SIGNIF";
                 }
 
                 defineIfDepth++;
@@ -759,18 +1345,63 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   }
                 }
 
-                //Value2
-                //Empty check
-                if (match.groups.signIfValue2 === "") {
-                  diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
-                } else if (!match.groups.signIfValue2.match(/^(?:\=\=|\<|\>|\<\=|\>\=|\!\=)$/)) {
-                  diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
-                }
+                if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
+                  //Value2
+                  //Empty check
+                  if (match.groups.signIfValue2 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
+                  }
 
-                //Value3
-                //Empty check
-                if (match.groups.signIfValue3 === "") {
-                  diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+                  //Value3
+                  //Empty check
+                  if (match.groups.signIfValue3 === "") {
+                    diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
+                  }
+                } else {
+                  let defineVar = match.groups.signIfValue1;
+                  let defineValue;
+                  let defineFlg = false;
+                  if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                    switch (match.groups.signIfValue2) {
+                      case "==":
+                        if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      case "<":
+                        if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      case ">":
+                        if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      case "<=":
+                        if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      case ">=":
+                        if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      case "!=":
+                        if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                          defineFlg = true;
+                        }
+                        break;
+                      default:
+                        diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
+                        break;
+                    }
+                    if (defineFlg) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
                 }
 
                 defineIfDepth++;
@@ -1811,13 +2442,16 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
       let regex: RegExp;
       switch (curlyBracesType) {
         case "SAMPLES":
-          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
+          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.signAny, regexMap.anything].join("|"), "g");
           break;
         case "INSTRUMENTS":
-          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");
+          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");
           break;
         case "SPC":
-          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signInfo, regexMap.signLength, regexMap.signAny, regexMap.anything].join("|"), "g");
+          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.signInfo, regexMap.signLength, regexMap.signAny, regexMap.anything].join("|"), "g");
+          break;
+        case "SIGNIF":
+          regex = new RegExp([regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif].join("|"), "g");
           break;
         default:
           regex = new RegExp(

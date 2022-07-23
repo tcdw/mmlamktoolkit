@@ -120,7 +120,7 @@
             }
           },
           "end": "((?<=\\}))",
-          "patterns": [{ "include": "#comment" }, { "include": "#sign_any" }, { "include": "#quotation" }]
+          "patterns": [{ "include": "#comment" }, { "include": "#sign_define" }, { "include": "#sign_endif" }, { "include": "#sign_any" }, { "include": "#quotation" }, { "include": "#num" }]
         }
       ]
     },
@@ -134,7 +134,7 @@
             }
           },
           "end": "((?<=\\}))",
-          "patterns": [{ "include": "#comment" }, { "include": "#quotation" }, { "include": "#hex_command" }, { "include": "#noise" }, { "include": "#instrument" }]
+          "patterns": [{ "include": "#comment" }, { "include": "#quotation" }, { "include": "#sign_define" }, { "include": "#sign_endif" }, { "include": "#hex_command" }, { "include": "#noise" }, { "include": "#instrument" }, { "include": "#num" }]
         }
       ]
     },
@@ -148,7 +148,7 @@
             }
           },
           "end": "((?<=\\}))",
-          "patterns": [{ "include": "#comment" }, { "include": "#sign_any" }, { "include": "#quotation" }]
+          "patterns": [{ "include": "#comment" }, { "include": "#sign_define" }, { "include": "#sign_endif" }, { "include": "#sign_any" }, { "include": "#quotation" }, { "include": "#num" }]
         }
       ]
     },
