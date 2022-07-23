@@ -33,7 +33,7 @@ export const regexMap = {
   loopRecall: "(?<loopRecall>\\*(?<loopRecallValue>\\d*))",
   curlyBracesBegin: "(?<curlyBracesBegin>\\{)",
   curlyBracesEnd: "(?<curlyBracesEnd>\\})",
-  replacementBegin: '(?<replacementBegin>"\\s*(?<replacementBeginValue>[^"]*)\\s*\\=)',
+  replacementBegin: '(?<replacementBegin>"\\s*(?<replacementBeginValue>[^"\\s]*)\\s*\\=)',
   quotation: '(?<quotation>")',
   hexCommand: "(?<hexCommand>\\$(?<hexCommandValue>[a-fA-F\\d]{0,2}))",
   hexSubLoop: "(?<hexSubLoop>\\$[e|E]6\\s*\\$(?<hexSubLoopValue>[a-fA-F\\d]{0,2}))",

@@ -43,14 +43,16 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
         regexMap.octave,
         regexMap.octaveLower,
         regexMap.octaveRaise,
+        "(?<num>\\d+)",
       ];
-      let replacementMap: Map<string, { octave: number; isAbsolute: boolean }> = new Map();
+      let replacementMap: Map<string, { octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean }> = new Map();
 
       let octave = 4;
-      let replacementOctave: { octave: number; isAbsolute: boolean } | undefined = undefined;
+      let replacementOctave: { octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean } | undefined = undefined;
       let replacementKey = "";
       let inQuotation = false;
       let inCurlyBraces = false;
+      let previousMatch = undefined;
 
       //HexCommand
       let hexCount = 0;
@@ -132,6 +134,9 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                       } else {
                         octave += replacement.octave;
                       }
+                    }
+                    if (replacementOctave !== undefined && replacement.endWithEmptyOctave && text[match.index + match[0].length] === '"') {
+                      replacementOctave.endWithEmptyOctave = true;
                     }
                   }
                 }
@@ -326,6 +331,8 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                         octave = parseInt(match.groups.octaveValue);
                       }
                     }
+                  } else if (match.groups.octaveValue === "" && replacementOctave !== undefined && text[match.index + 1] === '"') {
+                    replacementOctave.endWithEmptyOctave = true;
                   }
                 }
 
@@ -354,6 +361,35 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                     }
                   }
                 }
+
+                //
+                else if (match.groups.num !== undefined && previousMatch?.groups?.replacementCall !== undefined && previousMatch.groups.replacementCall[previousMatch.groups.replacementCall.length - 1] === text[match.index - 1] && replacementMap.get(previousMatch.groups.replacementCall)?.endWithEmptyOctave) {
+                  if (parseInt(match.groups.num) < 1) {
+                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 1);
+                    if (replacementOctave !== undefined) {
+                      replacementOctave.octave = 1;
+                      replacementOctave.isAbsolute = true;
+                    } else {
+                      octave = 1;
+                    }
+                  } else if (6 < parseInt(match.groups.num)) {
+                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 6);
+                    if (replacementOctave !== undefined) {
+                      replacementOctave.octave = 6;
+                      replacementOctave.isAbsolute = true;
+                    } else {
+                      octave = 6;
+                    }
+                  } else {
+                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** parseInt(match.groups.num));
+                    if (replacementOctave !== undefined) {
+                      replacementOctave.octave = parseInt(match.groups.num);
+                      replacementOctave.isAbsolute = true;
+                    } else {
+                      octave = parseInt(match.groups.num);
+                    }
+                  }
+                }
               }
             }
 
@@ -361,6 +397,7 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
               hexCount = 0;
               hexMatch = undefined;
             }
+            previousMatch = match;
           }
         }
 

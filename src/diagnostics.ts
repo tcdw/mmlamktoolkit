@@ -117,7 +117,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
           }
           if (!inReplacementDef) {
             replacementIndexShiftArray[lineIndex].push({ start: replacementKeyMatch.index, endKey: replacementKeyMatch.index + r.key.length, endValue: replacementKeyMatch.index + r.value.length, shift: r.key.length - r.value.length });
-            text = text.substring(0, text.indexOf(r.key)) + r.value + text.substring(text.indexOf(r.key) + r.key.length);
+            text = text.substring(0, replacementKeyMatch.index) + r.value + text.substring(replacementKeyMatch.index + r.key.length);
           }
         }
       }
