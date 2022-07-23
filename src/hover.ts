@@ -196,7 +196,7 @@ export class MmlHoverProvider {
                 //quotationMatch check
                 else if (quotationMatch === undefined) {
                   //signSampleGroup(#)
-                  if (match.groups.signSampleGroup !== undefined) {
+                  if (match.groups.signAny !== undefined) {
                     if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signSampleGroup)) !== undefined) {
                       return hover;
                     }
@@ -1506,7 +1506,7 @@ export class MmlHoverProvider {
         let regex: RegExp;
         switch (curlyBracesType) {
           case "SAMPLES":
-            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.signSampleGroup, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
+            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
             break;
           case "INSTRUMENTS":
             regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");

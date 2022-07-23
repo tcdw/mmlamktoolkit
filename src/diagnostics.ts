@@ -212,13 +212,8 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //quotationMatch check
               else if (quotationMatch === undefined) {
                 //signSampleGroup(#)
-                if (match.groups.signSampleGroup !== undefined) {
+                if (match.groups.signAny !== undefined) {
                   //Through
-                }
-
-                //signAny(#)
-                else if (match.groups.signAny !== undefined) {
-                  diagnostics.push(createDiagnostic(lineIndex, match, 'The specified sample group, "' + match.groups.signAnyValue + '", could not be found.'));
                 }
 
                 //else
@@ -1816,7 +1811,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
       let regex: RegExp;
       switch (curlyBracesType) {
         case "SAMPLES":
-          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.signSampleGroup, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
+          regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
           break;
         case "INSTRUMENTS":
           regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");
