@@ -199,7 +199,7 @@
       "patterns": [
         {
           "name": "entity.name.function.hex_command.mml",
-          "match": "\\$[a-fA-F\\d]*"
+          "match": "\\$[a-fA-F\\d]{,2}"
         }
       ]
     },
@@ -207,7 +207,7 @@
       "patterns": [
         {
           "name": "constant.character.escape.quantization.mml",
-          "match": "[qQ][a-fA-F\\d]*"
+          "match": "[qQ][a-fA-F\\d]{,2}"
         }
       ]
     },
@@ -215,7 +215,7 @@
       "patterns": [
         {
           "name": "entity.name.type.noise.mml",
-          "match": "[nN][a-fA-F\\d]*"
+          "match": "[nN][a-fA-F\\d]{,2}"
         }
       ]
     },
