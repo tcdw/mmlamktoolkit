@@ -2,7 +2,6 @@ export const regexMap = {
   signSamples: "(?<signSamples>#[s|S][a|A][m|M][p|P][l|L][e|E][s|S])",
   signInstruments: "(?<signInstruments>#[i|I][n|N][s|S][t|T][r|R][u|U][m|M][e|E][n|N][t|T][s|S])",
   signSpc: "(?<signSpc>#[s|S][p|P][c|C])",
-  signSampleGroup: "(?<signSampleGroup>#(?:default|optimized))",
   signInfo: "(?<signInfo>#(?:author|game|comment|title))",
   signLength: "(?<signLength>#length)",
   signPath: "(?<signPath>#[p|P][a|A][t|T][h|H])",
