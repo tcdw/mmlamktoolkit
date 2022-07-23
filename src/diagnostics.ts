@@ -896,7 +896,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //Range check(0-65535)
                 else if (!(0 <= parseInt(match.groups.remoteCodeCallValue1) && parseInt(match.groups.remoteCodeCallValue1) <= 65535)) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing remote code setup.\nValid values are 0 to 65535."));
-                } else if (!remoteCodeArray.includes(parseInt(match.groups.remoteCodeCallValue1))) {
+                } else if (!remoteCodeArray.includes(parseInt(match.groups.remoteCodeCallValue1)) && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing remote code setup.\nLabel not yet defined."));
                 }
 
