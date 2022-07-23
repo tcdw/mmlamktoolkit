@@ -58,7 +58,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
   let replacementValue = "";
   let replacementLineIndex = 0;
   let replacementMatch = undefined;
-  let replacementMap: Map<string, string> = new Map();
+  let replacementMap: { key: string; value: string }[] = [];
   let replacementIndexShiftArray: { start: number; endKey: number; endValue: number; shift: number }[][] = new Array();
 
   //Sample
@@ -101,18 +101,57 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
     //Replacement check
     let replacementKeyMatch: RegExpExecArray | null;
-    while (replacementMap.size > 0 && (replacementKeyMatch = RegExp([...replacementMap.keys()].join("|"), "g").exec(text)) !== null) {
-      replacementMap.forEach((value: string, key: string) => {
-        if (replacementKeyMatch !== null && key === replacementKeyMatch[0]) {
-          replacementIndexShiftArray[lineIndex].push({ start: replacementKeyMatch.index, endKey: replacementKeyMatch.index + key.length, endValue: replacementKeyMatch.index + value.length, shift: key.length - value.length });
-          text = text.replace(key, value);
+    let lastIndex = 0;
+    while (replacementMap.length > 0 && (replacementKeyMatch = getReplacementRegexMap().exec(text)) !== null) {
+      for (const r of replacementMap) {
+        if (replacementKeyMatch !== null && r.key === replacementKeyMatch[0]) {
+          let replacementDefRegex = /(?<=\").+(?=\=.*\")/g;
+          let inReplacementDef = false;
+          let replacementDefMatch;
+          while ((replacementDefMatch = replacementDefRegex.exec(text)) !== null) {
+            if (replacementDefMatch.index <= replacementKeyMatch.index && replacementKeyMatch.index <= replacementDefMatch.index + replacementDefMatch[0].length) {
+              lastIndex = replacementDefMatch.index + replacementDefMatch[0].length;
+              inReplacementDef = true;
+              break;
+            }
+          }
+          if (!inReplacementDef) {
+            replacementIndexShiftArray[lineIndex].push({ start: replacementKeyMatch.index, endKey: replacementKeyMatch.index + r.key.length, endValue: replacementKeyMatch.index + r.value.length, shift: r.key.length - r.value.length });
+            text = text.substring(0, text.indexOf(r.key)) + r.value + text.substring(text.indexOf(r.key) + r.key.length);
+          }
         }
-      });
+      }
+    }
+
+    function getReplacementRegexMap(): RegExp {
+      let regex = RegExp(replacementMap.map((r) => escapeRegex(r.key)).join("|"), "g");
+      regex.lastIndex = lastIndex;
+      return regex;
+    }
+
+    function escapeRegex(str: string): string {
+      str = str.replace("\\", "\\\\");
+      str = str.replace("*", "\\*");
+      str = str.replace("+", "\\+");
+      str = str.replace(".", "\\.");
+      str = str.replace("?", "\\?");
+      str = str.replace("{", "\\{");
+      str = str.replace("}", "\\}");
+      str = str.replace("(", "\\(");
+      str = str.replace(")", "\\)");
+      str = str.replace("[", "\\[");
+      str = str.replace("]", "\\]");
+      str = str.replace("^", "\\^");
+      str = str.replace("$", "\\$");
+      str = str.replace("-", "\\-");
+      str = str.replace("|", "\\|");
+      str = str.replace("/", "\\/");
+      return str;
     }
 
     //Repeat until there are no matching words
     let match;
-    let lastIndex = 0;
+    lastIndex = 0;
     while ((match = getRegexMap().exec(text)) !== null) {
       if (match.groups !== undefined) {
         //Match variables
@@ -498,7 +537,18 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   replacementValue += " " + text.substring(0, match.index);
                 }
                 if (replacementKey !== "") {
-                  replacementMap.set(replacementKey, replacementValue);
+                  let index: number | undefined = undefined;
+                  for (const r of replacementMap) {
+                    if (replacementKey.includes(r.key)) {
+                      index = replacementMap.indexOf(r);
+                      break;
+                    }
+                  }
+                  if (index !== undefined) {
+                    replacementMap.splice(index, 0, { key: replacementKey, value: replacementValue });
+                  } else {
+                    replacementMap.push({ key: replacementKey, value: replacementValue });
+                  }
                 }
                 inReplacement = false;
                 replacementKey = "";

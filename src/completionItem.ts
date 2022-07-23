@@ -15,7 +15,7 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
       let replacementValue = "";
       let replacementLineIndex = 0;
       let replacementMatch: RegExpExecArray | undefined = undefined;
-      let replacementMap: Map<string, string> = new Map();
+      let replacementMap: { key: string; value: string }[] = [];
       let replacementIndexShiftArray: { start: number; keyName: string; endValue: number; shift: number }[][] = new Array();
 
       for (let lineIndex = 0; lineIndex < doc.lineCount; lineIndex++) {
@@ -38,18 +38,57 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
 
         //Replacement check
         let replacementKeyMatch: RegExpExecArray | null;
-        while (replacementMap.size > 0 && (replacementKeyMatch = RegExp([...replacementMap.keys()].join("|"), "g").exec(text)) !== null) {
-          replacementMap.forEach((value: string, key: string) => {
-            if (replacementKeyMatch !== null && key === replacementKeyMatch[0]) {
-              replacementIndexShiftArray[lineIndex].push({ start: replacementKeyMatch.index, keyName: key, endValue: replacementKeyMatch.index + value.length, shift: key.length - value.length });
-              text = text.replace(key, value);
+        let lastIndex = 0;
+        while (replacementMap.length > 0 && (replacementKeyMatch = getReplacementRegexMap().exec(text)) !== null) {
+          for (const r of replacementMap) {
+            if (replacementKeyMatch !== null && r.key === replacementKeyMatch[0]) {
+              let replacementDefRegex = /(?<=\").+(?=\=.*\")/g;
+              let inReplacementDef = false;
+              let replacementDefMatch;
+              while ((replacementDefMatch = replacementDefRegex.exec(text)) !== null) {
+                if (replacementDefMatch.index <= replacementKeyMatch.index && replacementKeyMatch.index <= replacementDefMatch.index + replacementDefMatch[0].length) {
+                  lastIndex = replacementDefMatch.index + replacementDefMatch[0].length;
+                  inReplacementDef = true;
+                  break;
+                }
+              }
+              if (!inReplacementDef) {
+                replacementIndexShiftArray[lineIndex].push({ start: replacementKeyMatch.index, keyName: r.key, endValue: replacementKeyMatch.index + r.value.length, shift: r.key.length - r.value.length });
+                text = text.substring(0, text.indexOf(r.key)) + r.value + text.substring(text.indexOf(r.key) + r.key.length);
+              }
             }
-          });
+          }
+        }
+
+        function getReplacementRegexMap(): RegExp {
+          let regex = RegExp(replacementMap.map((r) => escapeRegex(r.key)).join("|"), "g");
+          regex.lastIndex = lastIndex;
+          return regex;
+        }
+
+        function escapeRegex(str: string): string {
+          str = str.replace("\\", "\\\\");
+          str = str.replace("*", "\\*");
+          str = str.replace("+", "\\+");
+          str = str.replace(".", "\\.");
+          str = str.replace("?", "\\?");
+          str = str.replace("{", "\\{");
+          str = str.replace("}", "\\}");
+          str = str.replace("(", "\\(");
+          str = str.replace(")", "\\)");
+          str = str.replace("[", "\\[");
+          str = str.replace("]", "\\]");
+          str = str.replace("^", "\\^");
+          str = str.replace("$", "\\$");
+          str = str.replace("-", "\\-");
+          str = str.replace("|", "\\|");
+          str = str.replace("/", "\\/");
+          return str;
         }
 
         //Repeat until there are no matching words
         let match;
-        let lastIndex = 0;
+        lastIndex = 0;
         while ((match = getRegexMap().exec(text)) !== null) {
           if (match.groups !== undefined) {
             //Match variables
@@ -85,7 +124,18 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
                       replacementValue += " " + text.substring(0, match.index);
                     }
                     if (replacementKey !== "") {
-                      replacementMap.set(replacementKey, replacementValue);
+                      let index: number | undefined = undefined;
+                      for (const r of replacementMap) {
+                        if (replacementKey.includes(r.key)) {
+                          index = replacementMap.indexOf(r);
+                          break;
+                        }
+                      }
+                      if (index !== undefined) {
+                        replacementMap.splice(index, 0, { key: replacementKey, value: replacementValue });
+                      } else {
+                        replacementMap.push({ key: replacementKey, value: replacementValue });
+                      }
                     }
                     inReplacement = false;
                     replacementKey = "";
@@ -179,11 +229,11 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
         return index + shift;
       }
 
-      replacementMap.forEach((value: string, key: string) => {
-        let completionItem = new vscode.CompletionItem(key, vscode.CompletionItemKind.Variable);
-        completionItem.documentation = new vscode.MarkdownString("**Replacement call**\n\n*Value :*\n```\n" + value + "\n```");
+      for (const r of replacementMap) {
+        let completionItem = new vscode.CompletionItem(r.key, vscode.CompletionItemKind.Variable);
+        completionItem.documentation = new vscode.MarkdownString("**Replacement call**\n\n*Value :*\n```\n" + r.value + "\n```");
         replacementCompletionItems.push(completionItem);
-      });
+      }
 
       let completionList = new vscode.CompletionList(replacementCompletionItems, false);
       return Promise.resolve(completionList);
