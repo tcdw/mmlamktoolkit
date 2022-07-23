@@ -417,7 +417,6 @@ export class MmlHoverProvider {
                     return hover;
                   }
 
-                  inReplacement = false;
                   curlyBracesType = "SAMPLES";
                 }
 
@@ -427,7 +426,6 @@ export class MmlHoverProvider {
                     return hover;
                   }
 
-                  inReplacement = false;
                   curlyBracesType = "INSTRUMENTS";
                 }
 
@@ -437,7 +435,6 @@ export class MmlHoverProvider {
                     return hover;
                   }
 
-                  inReplacement = false;
                   curlyBracesType = "SPC";
                 }
 
@@ -446,8 +443,6 @@ export class MmlHoverProvider {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signPath)) !== undefined) {
                     return hover;
                   }
-
-                  inReplacement = false;
                 }
 
                 //signAmk(#amk)
@@ -557,7 +552,6 @@ export class MmlHoverProvider {
                     return hover;
                   }
 
-                  inReplacement = false;
                   inRemoteCode = false;
                   inLabelLoop = false;
                   inLoop = false;

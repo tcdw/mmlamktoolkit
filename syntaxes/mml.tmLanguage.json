@@ -46,7 +46,7 @@
     "replacement": {
       "patterns": [
         {
-          "begin": "(\")\\s*(\\S*)\\s*\\=",
+          "begin": "(\")\\s*([^\"]*?)\\s*\\=",
           "beginCaptures": {
             "1": {
               "name": "string.quoted.double.mml"
@@ -183,7 +183,7 @@
       "patterns": [
         {
           "name": "storage.type.sign_any.mml",
-          "match": "#\\S*"
+          "match": "#[^\"\\s]*"
         }
       ]
     },

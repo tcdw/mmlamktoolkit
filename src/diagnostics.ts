@@ -215,7 +215,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signDefine(#define)
                 if (match.groups.signDefine !== undefined) {
                   //Empty check
-                  if (match.groups.signDefineValue1 === "") {
+                  if (match.groups.signDefineValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signDefineValue1;
@@ -246,7 +246,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signUndef(#undef)
                 else if (match.groups.signUndef !== undefined) {
                   //Empty check
-                  if (match.groups.signUndefValue === "") {
+                  if (match.groups.signUndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signUndefValue;
@@ -257,7 +257,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfdef(#ifdef)
                 else if (match.groups.signIfdef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfdefValue === "") {
+                  if (match.groups.signIfdefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
                   } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -272,7 +272,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfndef(#ifndef)
                 else if (match.groups.signIfndef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfndefValue === "") {
+                  if (match.groups.signIfndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
                   } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -288,7 +288,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 else if (match.groups.signIf !== undefined) {
                   //Value1
                   //Empty check
-                  if (match.groups.signIfValue1 === "") {
+                  if (match.groups.signIfValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
                   } else {
                     let defineVar = match.groups.signIfValue1;
@@ -300,13 +300,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
                     //Value2
                     //Empty check
-                    if (match.groups.signIfValue2 === "") {
+                    if (match.groups.signIfValue2 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
                     }
 
                     //Value3
                     //Empty check
-                    if (match.groups.signIfValue3 === "") {
+                    if (match.groups.signIfValue3 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
                     }
                   } else {
@@ -413,6 +413,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 isUnexpected = true;
               } else {
                 inCurlyBraces = true;
+                hexCount = 0;
               }
             }
 
@@ -462,7 +463,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signDefine(#define)
                 if (match.groups.signDefine !== undefined) {
                   //Empty check
-                  if (match.groups.signDefineValue1 === "") {
+                  if (match.groups.signDefineValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signDefineValue1;
@@ -495,7 +496,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signUndef(#undef)
                 else if (match.groups.signUndef !== undefined) {
                   //Empty check
-                  if (match.groups.signUndefValue === "") {
+                  if (match.groups.signUndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signUndefValue;
@@ -508,7 +509,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfdef(#ifdef)
                 else if (match.groups.signIfdef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfdefValue === "") {
+                  if (match.groups.signIfdefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
                   } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -525,7 +526,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfndef(#ifndef)
                 else if (match.groups.signIfndef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfndefValue === "") {
+                  if (match.groups.signIfndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
                   } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -543,7 +544,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 else if (match.groups.signIf !== undefined) {
                   //Value1
                   //Empty check
-                  if (match.groups.signIfValue1 === "") {
+                  if (match.groups.signIfValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
                   } else {
                     let defineVar = match.groups.signIfValue1;
@@ -555,13 +556,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
                     //Value2
                     //Empty check
-                    if (match.groups.signIfValue2 === "") {
+                    if (match.groups.signIfValue2 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
                     }
 
                     //Value3
                     //Empty check
-                    if (match.groups.signIfValue3 === "") {
+                    if (match.groups.signIfValue3 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
                     }
                   } else {
@@ -641,7 +642,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //instrument(@)
                 else if (match.groups.instrument !== undefined) {
                   //Empty check
-                  if (match.groups.instrumentValue === "") {
+                  if (match.groups.instrumentValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing the instrument copy portion of the instrument command.\nValue is empty."));
                   }
                   //Range check(0-29)
@@ -657,7 +658,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //noise(n)
                 else if (match.groups.noise !== undefined) {
                   //Empty check
-                  if (match.groups.noiseValue === "") {
+                  if (match.groups.noiseValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Invlid value for the n command.  Value must be in hex and between 0 and 1F.\nValue is empty."));
                   }
                   //Range check(0-1F(31))
@@ -673,7 +674,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //hexCommand($)
                 else if (match.groups.hexCommand !== undefined) {
                   //Empty check
-                  if (match.groups.hexCommandValue === "") {
+                  if (match.groups.hexCommandValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing instrument definition.\nValue is empty."));
                   }
                   //Range check(0-FF(255))
@@ -803,7 +804,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signDefine(#define)
                 if (match.groups.signDefine !== undefined) {
                   //Empty check
-                  if (match.groups.signDefineValue1 === "") {
+                  if (match.groups.signDefineValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signDefineValue1;
@@ -834,7 +835,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signUndef(#undef)
                 else if (match.groups.signUndef !== undefined) {
                   //Empty check
-                  if (match.groups.signUndefValue === "") {
+                  if (match.groups.signUndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
                   } else {
                     let defineVar = match.groups.signUndefValue;
@@ -845,7 +846,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfdef(#ifdef)
                 else if (match.groups.signIfdef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfdefValue === "") {
+                  if (match.groups.signIfdefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
                   } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -860,7 +861,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 //signIfndef(#ifndef)
                 else if (match.groups.signIfndef !== undefined) {
                   //Empty check
-                  if (match.groups.signIfndefValue === "") {
+                  if (match.groups.signIfndefValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
                   } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                     defineIfDepthType.push(curlyBracesType);
@@ -876,7 +877,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 else if (match.groups.signIf !== undefined) {
                   //Value1
                   //Empty check
-                  if (match.groups.signIfValue1 === "") {
+                  if (match.groups.signIfValue1 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
                   } else {
                     let defineVar = match.groups.signIfValue1;
@@ -888,13 +889,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
                     //Value2
                     //Empty check
-                    if (match.groups.signIfValue2 === "") {
+                    if (match.groups.signIfValue2 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
                     }
 
                     //Value3
                     //Empty check
-                    if (match.groups.signIfValue3 === "") {
+                    if (match.groups.signIfValue3 === "" && !inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
                     }
                   } else {
@@ -1014,7 +1015,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
             //signIfdef(#ifdef)
             if (match.groups.signIfdef !== undefined) {
               //Empty check
-              if (match.groups.signIfdefValue === "") {
+              if (match.groups.signIfdefValue === "" && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
               }
 
@@ -1027,7 +1028,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
             //signIfndef(#ifndef)
             else if (match.groups.signIfndef !== undefined) {
               //Empty check
-              if (match.groups.signIfndefValue === "") {
+              if (match.groups.signIfndefValue === "" && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
               }
 
@@ -1041,7 +1042,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
             else if (match.groups.signIf !== undefined) {
               //Value1
               //Empty check
-              if (match.groups.signIfValue1 === "") {
+              if (match.groups.signIfValue1 === "" && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
               } else {
                 let defineVar = match.groups.signIfValue1;
@@ -1052,7 +1053,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               //Value2
               //Empty check
-              if (match.groups.signIfValue2 === "") {
+              if (match.groups.signIfValue2 === "" && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
               } else if (!match.groups.signIfValue2.match(/^(?:\=\=|\<|\>|\<\=|\>\=|\!\=)$/)) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "Unknown operator for #if."));
@@ -1060,7 +1061,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
               //Value3
               //Empty check
-              if (match.groups.signIfValue3 === "") {
+              if (match.groups.signIfValue3 === "" && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
               }
 
@@ -1162,11 +1163,6 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   diagnostics.push(createDiagnostic(lineIndex, match, "Recommended to be defined before the channel."));
                 }
 
-                if (inReplacement) {
-                  diagnostics.push(createDiagnostic(replacementLineIndex, replacementMatch, "Replacement end cannot be found."));
-                  inReplacement = false;
-                }
-
                 curlyBracesType = "SAMPLES";
               }
 
@@ -1174,11 +1170,6 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.signInstruments !== undefined) {
                 if (inChannel) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Recommended to be defined before the channel."));
-                }
-
-                if (inReplacement) {
-                  diagnostics.push(createDiagnostic(replacementLineIndex, replacementMatch, "Replacement end cannot be found."));
-                  inReplacement = false;
                 }
 
                 curlyBracesType = "INSTRUMENTS";
@@ -1190,11 +1181,6 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   diagnostics.push(createDiagnostic(lineIndex, match, "Recommended to be defined before the channel."));
                 }
 
-                if (inReplacement) {
-                  diagnostics.push(createDiagnostic(replacementLineIndex, replacementMatch, "Replacement end cannot be found."));
-                  inReplacement = false;
-                }
-
                 curlyBracesType = "SPC";
               }
 
@@ -1202,11 +1188,6 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.signPath !== undefined) {
                 if (inChannel) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Recommended to be defined before the channel."));
-                }
-
-                if (inReplacement) {
-                  diagnostics.push(createDiagnostic(replacementLineIndex, replacementMatch, "Replacement end cannot be found."));
-                  inReplacement = false;
                 }
 
                 if (specialMatch !== undefined) {
@@ -1219,7 +1200,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signAmk(#amk)
               else if (match.groups.signAmk !== undefined) {
                 //Empty check
-                if (match.groups.signAmkValue === "") {
+                if (match.groups.signAmkValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#amk must have an integer argument specifying the version.\nValue is empty."));
                 }
                 //Version check
@@ -1240,7 +1221,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signPad(#pad)
               else if (match.groups.signPad !== undefined) {
                 //Empty check
-                if (match.groups.signPadValue === "") {
+                if (match.groups.signPadValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing padding directive.\nValue is empty."));
                 }
               }
@@ -1253,7 +1234,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signOption(#option)
               else if (match.groups.signOption !== undefined) {
                 //Empty check
-                if (match.groups.signOptionValue === "") {
+                if (match.groups.signOptionValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#option directive missing its first argument.\nValue is empty."));
                 } else if (!match.groups.signOptionValue.match(/^(?:tempoimmunity|dividetempo|smwvtable|noloop)$/i)) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#option directive missing its first argument.\nUnexpected value."));
@@ -1263,7 +1244,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signDefine(#define)
               else if (match.groups.signDefine !== undefined) {
                 //Empty check
-                if (match.groups.signDefineValue1 === "") {
+                if (match.groups.signDefineValue1 === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#define was missing its argument.\nValue is empty."));
                 } else {
                   let defineVar = match.groups.signDefineValue1;
@@ -1294,7 +1275,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signUndef(#undef)
               else if (match.groups.signUndef !== undefined) {
                 //Empty check
-                if (match.groups.signUndefValue === "") {
+                if (match.groups.signUndefValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#undef was missing its argument.\nValue is empty."));
                 } else {
                   let defineVar = match.groups.signUndefValue;
@@ -1305,7 +1286,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signIfdef(#ifdef)
               else if (match.groups.signIfdef !== undefined) {
                 //Empty check
-                if (match.groups.signIfdefValue === "") {
+                if (match.groups.signIfdefValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#ifdef was missing its argument.\nValue is empty."));
                 } else if (!defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                   defineIfDepthType.push(curlyBracesType);
@@ -1320,7 +1301,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //signIfndef(#ifndef)
               else if (match.groups.signIfndef !== undefined) {
                 //Empty check
-                if (match.groups.signIfndefValue === "") {
+                if (match.groups.signIfndefValue === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "#ifndef was missing its argument.\nValue is empty."));
                 } else if (defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
                   defineIfDepthType.push(curlyBracesType);
@@ -1336,7 +1317,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.signIf !== undefined) {
                 //Value1
                 //Empty check
-                if (match.groups.signIfValue1 === "") {
+                if (match.groups.signIfValue1 === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "First argument for #if was never defined.\nValue1 is empty."));
                 } else {
                   let defineVar = match.groups.signIfValue1;
@@ -1348,13 +1329,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 if (match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "") {
                   //Value2
                   //Empty check
-                  if (match.groups.signIfValue2 === "") {
+                  if (match.groups.signIfValue2 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue2 is empty."));
                   }
 
                   //Value3
                   //Empty check
-                  if (match.groups.signIfValue3 === "") {
+                  if (match.groups.signIfValue3 === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#if was missing its second argument.\nValue3 is empty."));
                   }
                 } else {
@@ -1444,18 +1425,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 }
                 inLoop = false;
 
-                if (inReplacement) {
-                  diagnostics.push(createDiagnostic(replacementLineIndex, replacementMatch, "Replacement end cannot be found."));
-                  inReplacement = false;
-                }
-
                 //Reset values
                 pitch = 0;
                 tune = 0;
               }
 
               //signAny(#)
-              else if (match.groups.signAny !== undefined) {
+              else if (match.groups.signAny !== undefined && !inReplacement) {
                 diagnostics.push(createDiagnostic(lineIndex, match, "Unexpected special command found."));
               }
 
@@ -1639,7 +1615,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                 if (!inReplacement) {
                   //Empty check
-                  if (match.groups.superLoopEndValue === "") {
+                  if (match.groups.superLoopEndValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing subloop command; the loop count was missing."));
                   }
                   //Range check(2-)
@@ -1696,7 +1672,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //hexCommand($)
               else if (match.groups.hexCommand !== undefined) {
                 //Empty check
-                if (!inReplacement && match.groups.hexCommandValue === "") {
+                if (!inReplacement && (match.groups.hexCommandValue === "" || match.groups.hexCommandValue === undefined)) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValue is empty."));
                 } else {
                   isHex = true;
@@ -1734,7 +1710,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F8":
                         if (hexCount >= 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           hexMatch = undefined;
@@ -1757,7 +1733,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F6":
                         if (hexCount >= 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           if (hexCount >= 2) {
@@ -1782,7 +1758,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F2":
                         if (hexCount >= 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           if (hexCount >= 3) {
@@ -1796,7 +1772,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "DA":
                         if (hexCount >= 1) {
                           //Range check(0-12(18))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 18)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 18) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Default limit is $00 to $12."));
                           }
                           hexMatch = undefined;
@@ -1808,7 +1784,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "DB":
                         if (hexCount >= 1) {
                           //Range check(0-13(19))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 19)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 19) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Must be between $00 and $13."));
                           }
                           hexMatch = undefined;
@@ -1820,12 +1796,12 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "DC":
                         if (hexCount === 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                         } else if (hexCount >= 2) {
                           //Range check(0-13(19))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 19)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 19) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Must be between $00 and $13."));
                           }
                           hexMatch = undefined;
@@ -1837,12 +1813,12 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "DD":
                         if (hexCount === 1 || hexCount === 2) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                         } else if (hexCount >= 3) {
                           //Range check(80(128)-C5(197))
-                          if (!inReplacement && !(128 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 197)) {
+                          if (!inReplacement && !(128 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 197) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Recommended values are 128(80) to C5(197)."));
                           }
                           hexMatch = undefined;
@@ -1884,12 +1860,12 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "ED":
                         if (hexCount === 1) {
                           //Range check(0-80(128))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 128)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 128) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to 80(128)."));
                           }
                         } else if (hexCount >= 2) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           hexMatch = undefined;
@@ -1901,17 +1877,17 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F1":
                         if (hexCount === 1) {
                           //Range check(0-0F(15))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 15)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 15) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to 0F(15)."));
                           }
                         } else if (hexCount === 2) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                         } else if (hexCount >= 3) {
                           //Range check(0-01(1))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 1)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 1) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Recommended values are 00(0) to 01(1)."));
                           }
                           hexMatch = undefined;
@@ -1923,7 +1899,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F4":
                         if (hexCount >= 1) {
                           //Range check(0-09(9))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 9) || parseInt("0x" + match.groups.hexCommandValue, 16) === 4) {
+                          if ((!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 9) || parseInt("0x" + match.groups.hexCommandValue, 16) === 4) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nUndefined command."));
                           }
                           hexMatch = undefined;
@@ -1935,7 +1911,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "F5":
                         if (hexCount >= 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           if (hexCount >= 8) {
@@ -1949,12 +1925,12 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "FA":
                         if (hexCount === 1) {
                           //Range check(0-04(4))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 4)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 4) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nUndefined command."));
                           }
                         } else if (hexCount >= 2) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           hexMatch = undefined;
@@ -1966,13 +1942,13 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "FB":
                         if (hexCount === 1) {
                           //Range check(0-81(129))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 129)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 129) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nUndefined command."));
                           }
                           arpeggioCount = parseInt("0x" + match.groups.hexCommandValue, 16);
                         } else if (hexCount >= 2) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
 
@@ -1995,7 +1971,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                       case "FC":
                         if (hexCount >= 1) {
                           //Range check(0-FF(255))
-                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255)) {
+                          if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 255) && !inReplacement) {
                             diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nValid values are 0 to FF(255)."));
                           }
                           if (hexCount >= 4) {
@@ -2012,7 +1988,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //quantization(q)
               else if (match.groups.quantization !== undefined) {
                 //Empty check
-                if (match.groups.quantizationValue === "") {
+                if (match.groups.quantizationValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing quantization ("q") command.\nValue is empty.'));
                   }
@@ -2032,7 +2008,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //noise(n)
               else if (match.groups.noise !== undefined) {
                 //Empty check
-                if (match.groups.noiseValue === "") {
+                if (match.groups.noiseValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Invlid value for the n command.  Value must be in hex and between 0 and 1F.\nValue is empty."));
                   }
@@ -2172,7 +2148,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //tune(h)
               else if (match.groups.tune !== undefined) {
                 //Empty check
-                if (match.groups.tuneValue === "") {
+                if (match.groups.tuneValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing h transpose directive.\nValue is empty."));
                   }
@@ -2184,7 +2160,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //octave(o)
               else if (match.groups.octave !== undefined) {
                 //Empty check
-                if (match.groups.octaveValue === "") {
+                if (match.groups.octaveValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing octave ("o") directive.\nValue is empty.'));
                   }
@@ -2200,7 +2176,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //defaultLength(l)
               else if (match.groups.defaultLength !== undefined) {
                 //Empty check
-                if (match.groups.defaultLengthLength === "") {
+                if (match.groups.defaultLengthLength === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing "l" directive.\nValue is empty.'));
                   }
@@ -2214,7 +2190,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //instrument(@)
               else if (match.groups.instrument !== undefined) {
                 //Empty check
-                if (match.groups.instrumentValue === "") {
+                if (match.groups.instrumentValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing instrument ("@") command.\nValue is empty.'));
                   }
@@ -2228,7 +2204,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //volume(v)
               else if (match.groups.volume !== undefined) {
                 //Empty check
-                if (match.groups.volumeValue === "") {
+                if (match.groups.volumeValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing volume ("v") command.\nValue is empty.'));
                   }
@@ -2242,7 +2218,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //globalVolume(w)
               else if (match.groups.globalVolume !== undefined) {
                 //Empty check
-                if (match.groups.globalVolumeValue === "") {
+                if (match.groups.globalVolumeValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing global volume ("w") command.\nValue is empty.'));
                   }
@@ -2257,7 +2233,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.pan !== undefined) {
                 //Value1
                 //Empty check
-                if (match.groups.panValue1 === "") {
+                if (match.groups.panValue1 === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing pan ("y") command.\nValue is empty.'));
                   }
@@ -2270,7 +2246,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 if (match.groups.panValueAdditional !== undefined) {
                   //Value2
                   //Empty check
-                  if (match.groups.panValue2 === "") {
+                  if (match.groups.panValue2 === "" && !inReplacement) {
                     if (!inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing pan ("y") command.\nArgument2 is empty.'));
                     }
@@ -2282,7 +2258,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                   //Value3
                   //Empty check
-                  if (match.groups.panValue3 === "") {
+                  if (match.groups.panValue3 === "" && !inReplacement) {
                     if (!inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing pan ("y") command.\nArgument3 is empty.'));
                     }
@@ -2297,7 +2273,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               //tempo(t)
               else if (match.groups.tempo !== undefined) {
                 //Empty check
-                if (match.groups.tempoValue === "") {
+                if (match.groups.tempoValue === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, 'Error parsing tempo ("t") command.\nValue is empty.'));
                   }
@@ -2312,7 +2288,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.vibrato !== undefined) {
                 //Value1
                 //Empty check
-                if (match.groups.vibratoValue1 === "") {
+                if (match.groups.vibratoValue1 === "" && !inReplacement) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing vibrato command.\nArgument1 is empty."));
                 }
                 //Range check(0-255)
@@ -2322,7 +2298,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
 
                 //Value2
                 //Empty check
-                if (match.groups.vibratoValue2 === "") {
+                if (match.groups.vibratoValue2 === "" && !inReplacement) {
                   if (!inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing vibrato command.\nArgument2 is empty."));
                   }
@@ -2335,7 +2311,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 if (match.groups.vibratoValueAdditional !== undefined) {
                   //Value3
                   //Empty check
-                  if (match.groups.vibratoValue3 === "") {
+                  if (match.groups.vibratoValue3 === "" && !inReplacement) {
                     if (!inReplacement) {
                       diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing vibrato command.\nArgument3 is empty."));
                     }

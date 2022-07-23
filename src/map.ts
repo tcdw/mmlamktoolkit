@@ -32,7 +32,7 @@ export const regexMap = {
   loopRecall: "(?<loopRecall>\\*(?<loopRecallValue>\\d*))",
   curlyBracesBegin: "(?<curlyBracesBegin>\\{)",
   curlyBracesEnd: "(?<curlyBracesEnd>\\})",
-  replacementBegin: '(?<replacementBegin>"\\s*(?<replacementBeginValue>[^"\\s]*)\\s*\\=)',
+  replacementBegin: '(?<replacementBegin>"\\s*(?<replacementBeginValue>[^"]*?)\\s*\\=)',
   quotation: '(?<quotation>")',
   hexCommand: "(?<hexCommand>\\$(?<hexCommandValue>[a-fA-F\\d]{0,2}))",
   hexSubLoop: "(?<hexSubLoop>\\$[e|E]6\\s*\\$(?<hexSubLoopValue>[a-fA-F\\d]{0,2}))",
@@ -55,7 +55,7 @@ export const regexMap = {
   pitchSlide: "(?<pitchSlide>&)",
   noLoop: "(?<noLoop>\\?)",
   loopPoint: "(?<loopPoint>\\/)",
-  signAny: "(?<signAny>#(?<signAnyValue>\\S*))",
+  signAny: '(?<signAny>#(?<signAnyValue>[^"\\s]*))',
   anything: "(?<anything>\\S)",
 };
 

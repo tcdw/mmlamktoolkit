@@ -45,11 +45,10 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
         regexMap.octaveRaise,
         "(?<num>\\d+)",
       ];
-      let replacementMap: Map<string, { octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean }> = new Map();
+      let replacementMap: { key: string; octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean }[] = [];
 
       let octave = 4;
-      let replacementOctave: { octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean } | undefined = undefined;
-      let replacementKey = "";
+      let replacementOctave: { key: string; octave: number; isAbsolute: boolean; endWithEmptyOctave?: boolean } | undefined = undefined;
       let inQuotation = false;
       let inCurlyBraces = false;
       let previousMatch = undefined;
@@ -80,18 +79,28 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
 
             //replacementBegin("=)
             if (match.groups.replacementBegin !== undefined) {
-              replacementKey = match.groups.replacementBeginValue;
-              replacementOctave = { octave: 0, isAbsolute: false };
+              replacementOctave = { key: match.groups.replacementBeginValue, octave: 0, isAbsolute: false };
             }
 
             //quotation(")
             else if (match.groups.quotation !== undefined) {
               if (replacementOctave !== undefined) {
-                if (replacementKey !== "") {
-                  replacementMap.set(replacementKey, replacementOctave);
+                if (replacementOctave.key !== "") {
+                  // replacementMap.push(replacementOctave);
+                  let index: number | undefined = undefined;
+                  for (const r of replacementMap) {
+                    if (replacementOctave.key.includes(r.key)) {
+                      index = replacementMap.indexOf(r);
+                      break;
+                    }
+                  }
+                  if (index !== undefined) {
+                    replacementMap.splice(index, 0, replacementOctave);
+                  } else {
+                    replacementMap.push(replacementOctave);
+                  }
                 }
                 replacementOctave = undefined;
-                replacementKey = "";
               } else if (!inQuotation) {
                 inQuotation = true;
               } else {
@@ -120,7 +129,8 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                   builder.push(lineIndex, match.index, match[0].length, 0, 1);
 
                   let replacement;
-                  if ((replacement = replacementMap.get(match.groups.replacementCall)) !== undefined) {
+                  let key = match.groups.replacementCall;
+                  if ((replacement = replacementMap.find((r) => r.key === key)) !== undefined) {
                     if (replacement.isAbsolute) {
                       if (replacementOctave !== undefined) {
                         replacementOctave.octave = replacement.octave;
@@ -363,30 +373,33 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
                 }
 
                 //
-                else if (match.groups.num !== undefined && previousMatch?.groups?.replacementCall !== undefined && previousMatch.groups.replacementCall[previousMatch.groups.replacementCall.length - 1] === text[match.index - 1] && replacementMap.get(previousMatch.groups.replacementCall)?.endWithEmptyOctave) {
-                  if (parseInt(match.groups.num) < 1) {
-                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 1);
-                    if (replacementOctave !== undefined) {
-                      replacementOctave.octave = 1;
-                      replacementOctave.isAbsolute = true;
+                else if (match.groups.num !== undefined && previousMatch?.groups?.replacementCall !== undefined && previousMatch.groups.replacementCall[previousMatch.groups.replacementCall.length - 1] === text[match.index - 1]) {
+                  let key = previousMatch.groups.replacementCall;
+                  if (replacementMap.find((r) => r.key === key)?.endWithEmptyOctave) {
+                    if (parseInt(match.groups.num) < 1) {
+                      builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 1);
+                      if (replacementOctave !== undefined) {
+                        replacementOctave.octave = 1;
+                        replacementOctave.isAbsolute = true;
+                      } else {
+                        octave = 1;
+                      }
+                    } else if (6 < parseInt(match.groups.num)) {
+                      builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 6);
+                      if (replacementOctave !== undefined) {
+                        replacementOctave.octave = 6;
+                        replacementOctave.isAbsolute = true;
+                      } else {
+                        octave = 6;
+                      }
                     } else {
-                      octave = 1;
-                    }
-                  } else if (6 < parseInt(match.groups.num)) {
-                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** 6);
-                    if (replacementOctave !== undefined) {
-                      replacementOctave.octave = 6;
-                      replacementOctave.isAbsolute = true;
-                    } else {
-                      octave = 6;
-                    }
-                  } else {
-                    builder.push(lineIndex, match.index, match[0].length, 3, 2 ** parseInt(match.groups.num));
-                    if (replacementOctave !== undefined) {
-                      replacementOctave.octave = parseInt(match.groups.num);
-                      replacementOctave.isAbsolute = true;
-                    } else {
-                      octave = parseInt(match.groups.num);
+                      builder.push(lineIndex, match.index, match[0].length, 3, 2 ** parseInt(match.groups.num));
+                      if (replacementOctave !== undefined) {
+                        replacementOctave.octave = parseInt(match.groups.num);
+                        replacementOctave.isAbsolute = true;
+                      } else {
+                        octave = parseInt(match.groups.num);
+                      }
                     }
                   }
                 }
@@ -403,12 +416,32 @@ class MmlSemanticTokensProvider implements vscode.DocumentSemanticTokensProvider
 
         function getRegexMap(): RegExp {
           let regexMapArray = Array.from(regexArray);
-          if (replacementMap.size > 0) {
-            regexMapArray.unshift("(?<replacementCall>" + [...replacementMap.keys()].join("|") + ")");
+          if (replacementMap.length > 0) {
+            regexMapArray.unshift("(?<replacementCall>" + replacementMap.map((r) => escapeRegex(r.key)).join("|") + ")");
           }
           let regex = new RegExp(regexMapArray.join("|"), "g");
           regex.lastIndex = lastIndex;
           return regex;
+
+          function escapeRegex(str: string): string {
+            str = str.replace("\\", "\\\\");
+            str = str.replace("*", "\\*");
+            str = str.replace("+", "\\+");
+            str = str.replace(".", "\\.");
+            str = str.replace("?", "\\?");
+            str = str.replace("{", "\\{");
+            str = str.replace("}", "\\}");
+            str = str.replace("(", "\\(");
+            str = str.replace(")", "\\)");
+            str = str.replace("[", "\\[");
+            str = str.replace("]", "\\]");
+            str = str.replace("^", "\\^");
+            str = str.replace("$", "\\$");
+            str = str.replace("-", "\\-");
+            str = str.replace("|", "\\|");
+            str = str.replace("/", "\\/");
+            return str;
+          }
         }
       }
 

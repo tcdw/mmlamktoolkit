@@ -151,19 +151,16 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
                 else if (quotationMatch === undefined) {
                   //signSamples(#samples)
                   if (match.groups.signSamples !== undefined) {
-                    inReplacement = false;
                     curlyBracesType = "SAMPLES";
                   }
 
                   //signInstruments(#instruments)
                   else if (match.groups.signInstruments !== undefined) {
-                    inReplacement = false;
                     curlyBracesType = "INSTRUMENTS";
                   }
 
                   //signSpc(#Spc)
                   else if (match.groups.signSpc !== undefined) {
-                    inReplacement = false;
                     curlyBracesType = "SPC";
                   }
                 }
