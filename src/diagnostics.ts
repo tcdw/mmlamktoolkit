@@ -1671,10 +1671,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.octaveLower !== undefined) {
                 octave--;
 
-                //Pitch check
-                if (pitch + octave * 12 + tune < 12) {
+                //octave check
+                if (octave < 1) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been dropped too low."));
-                } else if (82 < pitch + octave * 12 + tune) {
+                } else if (6 < octave) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been raised too high."));
                 }
               }
@@ -1683,10 +1683,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
               else if (match.groups.octaveRaise !== undefined) {
                 octave++;
 
-                //Pitch check
-                if (pitch + octave * 12 + tune < 12) {
+                //octave check
+                if (octave < 1) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been dropped too low."));
-                } else if (82 < pitch + octave * 12 + tune) {
+                } else if (6 < octave) {
                   diagnostics.push(createDiagnostic(lineIndex, match, "The octave has been raised too high."));
                 }
               }
