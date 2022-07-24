@@ -8,7 +8,7 @@ This extension provides features to help you edit MML for AddmusicK.
 
 If you want to use this extension for the first time, you need to set the AddmusicK path in the config. At the first startup, the following warning message will appear.
 
-![img00](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img00.png)
+![img00](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img00.png?raw=true)
 
 You can set the path of AddmusicK by clicking the "Go to Config" button.
 
