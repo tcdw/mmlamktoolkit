@@ -8,11 +8,11 @@ This extension provides features to help you edit MML for AddmusicK.
 
 If you want to use this extension for the first time, you need to set the AddmusicK path in the config. At the first startup, the following warning message will appear.
 
-![img00](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img00.png?raw=true)
+![img00](https://i.imgur.com/AdBRV0W.png)
 
 You can set the path of AddmusicK by clicking the "Go to Config" button.
 
-![img01](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img01.png?raw=true)
+![img01](https://i.imgur.com/dlFhsZS.png)
 
 This setting is used for referencing the sample file (.brr).
 
@@ -20,7 +20,7 @@ This setting is used for referencing the sample file (.brr).
 
 Improve the readability of your MML by highlighting.
 
-![img02](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img02.png?raw=true)
+![img02](https://i.imgur.com/erMRdrY.png)
 
 ### Semantic Highlight (Only Dark+ theme)
 
@@ -28,23 +28,23 @@ Highlight Replacements that cannot be supported by Syntax Highlight, highlight t
 
 Compare the following two images :
 
-![img03](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img03.png?raw=true) ![img04](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img04.png?raw=true)
+![img03](https://i.imgur.com/qz1h6QD.png) ![img04](https://i.imgur.com/DWphTXx.png)
 
 ### Diagnostics
 
 Diagnostics is displayed for descriptions in which AddmusicK produces an error (e.g., if the value is empty or the limit is exceeded).
 
-![gif00](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/gif00.gif?raw=true)
+![gif00](https://i.imgur.com/v8oA4hG.gif)
 
-![img05](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img05.png?raw=true)
+![img05](https://i.imgur.com/jUSpLtc.png)
 
-![img06](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img06.png?raw=true)
+![img06](https://i.imgur.com/6MJtzcT.png)
 
 ### Auto Completion
 
 To assist with input, display completions such as Hex command and Special command.
 
-![gif01](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/gif01.gif?raw=true)
+![gif01](https://i.imgur.com/yu8YImy.gif)
 
 ### Hover
 
@@ -52,9 +52,9 @@ Displays information about the command on mouse hover. (From AddmusicK Readme)
 
 Some commands display the current instrument, octave, and contents of loops, etc.
 
-![gif02](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/gif02.gif?raw=true)
+![gif02](https://i.imgur.com/KLshN6p.gif)
 
-![img07](https://github.com/PineJamX/mmlamktoolkit/blob/main/images/img07.png?raw=true)
+![img07](https://i.imgur.com/KmfeEnF.png)
 
 ## Planned Features
 
