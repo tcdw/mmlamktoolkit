@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { regexMap } from "./map";
 
 export function registerCommands(context: vscode.ExtensionContext): void {
   /**
@@ -25,7 +26,7 @@ export function registerCommands(context: vscode.ExtensionContext): void {
     } else {
       //reverse octave command check
       const doOctaveReverse = await vscode.window.showQuickPick(["No", "Yes"], {
-        placeHolder: "Reverse octave command? (<→>,>→<)",
+        title: "Reverse octave command? (<→>,>→<)",
       });
 
       let textArray: string[] = [];
@@ -80,6 +81,9 @@ export function registerCommands(context: vscode.ExtensionContext): void {
     let doc = textEditor.document;
 
     let channelLineIndex = -1;
+    let drumArray: { instrument: string; octave: number; note: number }[] = [];
+    let currentValue: { instrument: string; octave: number } = { instrument: "", octave: -1 };
+    let textArray: string[] = [];
 
     for (let lineIndex = textEditor.selection.start.line; lineIndex >= 0; lineIndex--) {
       let text = doc.lineAt(lineIndex).text;
@@ -96,48 +100,201 @@ export function registerCommands(context: vscode.ExtensionContext): void {
       return;
     }
 
-    const argument = await vscode.window.showInputBox({
-      placeHolder: "Enter the values. Format : instrument(string), octave, note (e.g. @30,4,c)",
-    });
+    //imput arguments
+    while (true) {
+      const argument = await vscode.window.showInputBox({
+        placeHolder: "Format : instrument(string), octave, note (e.g. @30,4,c)",
+        prompt: "If Enter is entered while nothing is typed, it is confirmed. ",
+        title: "Enter the instrument to be assigned (any string) and the target pitch.",
+      });
 
-    //cancel
-    if (argument === undefined) {
-      return;
+      //cancel
+      if (argument === undefined) {
+        return;
+      }
+
+      //confirm
+      else if (argument === "") {
+        if (drumArray.length === 0) {
+          vscode.window.showWarningMessage("No arguments have been entered!");
+          continue;
+        }
+        break;
+      }
+
+      let argumentArray = argument.split(",").map((str) => str.trim());
+
+      //number of arguments check
+      if (argumentArray.length !== 3) {
+        vscode.window.showWarningMessage("Must be 3 arguments.");
+        continue;
+      }
+
+      //argument 1
+      //empty check
+      if (argumentArray[0] === "") {
+        vscode.window.showWarningMessage("Argument 1 (instrument) is not entered.");
+        continue;
+      }
+
+      //argument 2
+      //empty check
+      if (argumentArray[1] === "") {
+        vscode.window.showWarningMessage("Argument 2 (octave) is not entered.");
+        continue;
+      }
+      //range check (1-6)
+      else if (!(1 <= parseInt(argumentArray[1]) && parseInt(argumentArray[1]) <= 6)) {
+        vscode.window.showWarningMessage("Valid values of argument 2 (octave) are 1 to 6.");
+        continue;
+      }
+
+      //argument 3
+      //empty check
+      if (argumentArray[2] === "") {
+        vscode.window.showWarningMessage("Argument 3 (note) is not entered.");
+        continue;
+      }
+      //note check
+      else if (noteToPitch(argumentArray[2].toLowerCase()) === NaN) {
+        vscode.window.showWarningMessage("Argument 3 must be in note format.");
+        continue;
+      }
+
+      drumArray.push({ instrument: argumentArray[0], octave: parseInt(argumentArray[1]), note: noteToPitch(argumentArray[2].toLowerCase()) });
+      vscode.window.showInformationMessage('"' + argument + '" has been entered!');
     }
 
-    let argumentArray = argument.split(",").map((str) => str.trim());
-
-    //number of arguments check
-    if (argumentArray.length !== 3) {
-      vscode.window.showWarningMessage("Must be 3 arguments.");
-      return;
-    }
-
-    //argument 1
-    //empty check
-    if (argumentArray[0] === "") {
-      vscode.window.showWarningMessage("Argument 1 (instrument) is not entered.");
-      return;
-    }
-
-    //argument 2
-    //empty check
-    if (argumentArray[1] === "") {
-      vscode.window.showWarningMessage("Argument 2 (octave) is not entered.");
-      return;
-    }
-    //range check (1-6)
-    else if (!(1 <= parseInt(argumentArray[1]) && parseInt(argumentArray[1]) <= 6)) {
-      vscode.window.showWarningMessage("Valid values of argument 2 (octave) are 1 to 6.");
-      return;
-    }
-
-    for (let lineIndex = channelLineIndex; lineIndex < doc.lineCount; lineIndex++) {
+    let lineIndex: number;
+    for (lineIndex = channelLineIndex; lineIndex < doc.lineCount; lineIndex++) {
       let text = doc.lineAt(lineIndex).text;
 
       //channel(#)
       if (lineIndex !== channelLineIndex && text.match(/#\d+/g) !== null) {
         break;
+      }
+
+      //Exclude comment(;)
+      if (text.includes(";")) {
+        const index = text.indexOf(";");
+        if (index === 0) {
+          continue;
+        }
+        text = text.substring(0, index);
+      }
+
+      let drumIndexArray: { instrument: string; index: number }[] = [];
+
+      let regex = new RegExp([regexMap.note, regexMap.octave, regexMap.octaveLower, regexMap.octaveRaise].join("|"), "g");
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        if (match.groups !== undefined) {
+          //note
+          if (match.groups.note !== undefined) {
+            for (const drum of drumArray) {
+              if (currentValue.octave === drum.octave && noteToPitch(match.groups.notePitch.toLowerCase()) === drum.note && currentValue.instrument !== drum.instrument) {
+                currentValue.instrument = drum.instrument;
+                drumIndexArray.push({ instrument: currentValue.instrument, index: match.index });
+                break;
+              }
+            }
+          }
+
+          //octave
+          else if (match.groups.octave !== undefined) {
+            currentValue.octave = parseInt(match.groups.octaveValue);
+          }
+
+          //octaveLower
+          else if (match.groups.octaveLower !== undefined) {
+            currentValue.octave--;
+          }
+
+          //octaveRaise
+          else if (match.groups.octaveRaise !== undefined) {
+            currentValue.octave++;
+          }
+        }
+      }
+
+      if (drumIndexArray.length > 0) {
+        for (const drumIndex of drumIndexArray.reverse()) {
+          text = text.slice(0, drumIndex.index) + " " + drumIndex.instrument + " " + text.slice(drumIndex.index);
+        }
+      }
+
+      textArray.push(text);
+    }
+    textEditor.edit((editBuilder) => editBuilder.replace(new vscode.Range(channelLineIndex, 0, lineIndex - 1, doc.lineAt(lineIndex - 1).text.length), textArray.join("\r\n")));
+
+    function noteToPitch(note: string): number {
+      switch (note) {
+        case "c-":
+          return 11;
+
+        case "c":
+          return 0;
+
+        case "c+":
+          return 1;
+
+        case "d-":
+          return 1;
+
+        case "d":
+          return 2;
+
+        case "d+":
+          return 3;
+
+        case "e-":
+          return 3;
+
+        case "e":
+          return 4;
+
+        case "e+":
+          return 5;
+
+        case "f-":
+          return 4;
+
+        case "f":
+          return 5;
+
+        case "f+":
+          return 6;
+
+        case "g-":
+          return 6;
+
+        case "g":
+          return 7;
+
+        case "g+":
+          return 8;
+
+        case "a-":
+          return 8;
+
+        case "a":
+          return 9;
+
+        case "a+":
+          return 10;
+
+        case "b-":
+          return 10;
+
+        case "b":
+          return 11;
+
+        case "b+":
+          return 0;
+
+        default:
+          return NaN;
       }
     }
   }
