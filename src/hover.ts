@@ -15,6 +15,10 @@ export class MmlHoverProvider {
 
     let previousMatch = undefined;
 
+    //Define
+    let defineArray: { var: string; value: number }[] = new Array();
+    let defineIfDepthType: CurlyBracesType[] = [];
+
     //Pitch check
     let octave = 4;
 
@@ -195,8 +199,141 @@ export class MmlHoverProvider {
 
                 //quotationMatch check
                 else if (quotationMatch === undefined) {
+                  //signDefine(#define)
+                  if (match.groups.signDefine !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signDefine)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signDefineValue1 === "" && !inReplacement)) {
+                      let defineVar = match.groups.signDefineValue1;
+                      if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                          );
+                        } else {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: 1 }
+                          );
+                        }
+                      } else {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                        } else {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                        }
+                      }
+                    }
+                  }
+
+                  //signUndef(#undef)
+                  else if (match.groups.signUndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signUndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signUndefValue === "" && !inReplacement)) {
+                      let defineVar = match.groups.signUndefValue;
+                      defineArray = defineArray.filter((define) => define.var !== defineVar);
+                    }
+                  }
+
+                  //signIfdef(#ifdef)
+                  else if (match.groups.signIfdef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfdef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfdefValue === "" && !inReplacement) && !defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIfndef(#ifndef)
+                  else if (match.groups.signIfndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfndefValue === "" && !inReplacement) && defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIf(#if)
+                  else if (match.groups.signIf !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIf)) !== undefined) {
+                      return hover;
+                    }
+
+                    let defineVar = match.groups.signIfValue1;
+                    if (!(match.groups.signIfValue1 === "" && !inReplacement) && !(defineArray.find((define) => define.var === defineVar) === undefined) && !(match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "")) {
+                      let defineValue;
+                      let defineFlg = false;
+                      if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                        switch (match.groups.signIfValue2) {
+                          case "==":
+                            if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<":
+                            if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">":
+                            if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<=":
+                            if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">=":
+                            if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "!=":
+                            if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                        }
+                        if (defineFlg) {
+                          defineIfDepthType.push(curlyBracesType);
+                          curlyBracesType = "SIGNIF";
+                        }
+                      }
+                    }
+                  }
+
+                  //signEndif(#endif)
+                  else if (match.groups.signEndif !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signEndif)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
+                  //signError(#error)
+                  else if (match.groups.signError !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signError)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
                   //signSampleGroup(#)
-                  if (match.groups.signAny !== undefined) {
+                  else if (match.groups.signAny !== undefined) {
                     if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signSampleGroup)) !== undefined) {
                       return hover;
                     }
@@ -233,8 +370,145 @@ export class MmlHoverProvider {
 
                 //quotationMatch check
                 else if (quotationMatch === undefined) {
+                  //signDefine(#define)
+                  if (match.groups.signDefine !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signDefine)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signDefineValue1 === "" && !inReplacement)) {
+                      let defineVar = match.groups.signDefineValue1;
+                      if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                          );
+                        } else {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: 1 }
+                          );
+                        }
+                      } else {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                        } else {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                        }
+                      }
+                    }
+                  }
+
+                  //signUndef(#undef)
+                  else if (match.groups.signUndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signUndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signUndefValue === "" && !inReplacement)) {
+                      let defineVar = match.groups.signUndefValue;
+                      defineArray = defineArray.filter((define) => define.var !== defineVar);
+                    }
+                  }
+
+                  //signIfdef(#ifdef)
+                  else if (match.groups.signIfdef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfdef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfdefValue === "" && !inReplacement) && !defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIfndef(#ifndef)
+                  else if (match.groups.signIfndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfndefValue === "" && !inReplacement) && defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIf(#if)
+                  else if (match.groups.signIf !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIf)) !== undefined) {
+                      return hover;
+                    }
+
+                    let defineVar = match.groups.signIfValue1;
+                    if (!(match.groups.signIfValue1 === "" && !inReplacement) && !(defineArray.find((define) => define.var === defineVar) === undefined) && !(match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "")) {
+                      let defineValue;
+                      let defineFlg = false;
+                      if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                        switch (match.groups.signIfValue2) {
+                          case "==":
+                            if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<":
+                            if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">":
+                            if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<=":
+                            if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">=":
+                            if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "!=":
+                            if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                        }
+                        if (defineFlg) {
+                          defineIfDepthType.push(curlyBracesType);
+                          curlyBracesType = "SIGNIF";
+                        }
+                      }
+                    }
+                  }
+
+                  //signEndif(#endif)
+                  else if (match.groups.signEndif !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signEndif)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
+                  //signError(#error)
+                  else if (match.groups.signError !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signError)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
                   //instrument(@)
-                  if (match.groups.instrument !== undefined) {
+                  else if (match.groups.instrument !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.instrument)) !== undefined) {
+                      return hover;
+                    }
+
                     let instrument = instrumentMap.get(parseInt(match.groups.instrumentValue));
                     if (instrument !== undefined) {
                       instrumentMap.set(instrumentCount + 30, instrument);
@@ -244,6 +518,10 @@ export class MmlHoverProvider {
 
                   //noise(n)
                   else if (match.groups.noise !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.noise)) !== undefined) {
+                      return hover;
+                    }
+
                     instrumentMap.set(instrumentCount + 30, match[0]);
                     instrumentCount++;
                   }
@@ -314,8 +592,141 @@ export class MmlHoverProvider {
 
                 //quotationMatch check
                 else if (quotationMatch === undefined) {
+                  //signDefine(#define)
+                  if (match.groups.signDefine !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signDefine)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signDefineValue1 === "" && !inReplacement)) {
+                      let defineVar = match.groups.signDefineValue1;
+                      if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                          );
+                        } else {
+                          defineArray.splice(
+                            defineArray.findIndex((define) => define.var === defineVar),
+                            1,
+                            { var: defineVar, value: 1 }
+                          );
+                        }
+                      } else {
+                        if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                        } else {
+                          defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                        }
+                      }
+                    }
+                  }
+
+                  //signUndef(#undef)
+                  else if (match.groups.signUndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signUndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signUndefValue === "" && !inReplacement)) {
+                      let defineVar = match.groups.signUndefValue;
+                      defineArray = defineArray.filter((define) => define.var !== defineVar);
+                    }
+                  }
+
+                  //signIfdef(#ifdef)
+                  else if (match.groups.signIfdef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfdef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfdefValue === "" && !inReplacement) && !defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIfndef(#ifndef)
+                  else if (match.groups.signIfndef !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfndef)) !== undefined) {
+                      return hover;
+                    }
+
+                    if (!(match.groups.signIfndefValue === "" && !inReplacement) && defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                      defineIfDepthType.push(curlyBracesType);
+                      curlyBracesType = "SIGNIF";
+                    }
+                  }
+
+                  //signIf(#if)
+                  else if (match.groups.signIf !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIf)) !== undefined) {
+                      return hover;
+                    }
+
+                    let defineVar = match.groups.signIfValue1;
+                    if (!(match.groups.signIfValue1 === "" && !inReplacement) && !(defineArray.find((define) => define.var === defineVar) === undefined) && !(match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "")) {
+                      let defineValue;
+                      let defineFlg = false;
+                      if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                        switch (match.groups.signIfValue2) {
+                          case "==":
+                            if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<":
+                            if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">":
+                            if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "<=":
+                            if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case ">=":
+                            if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                          case "!=":
+                            if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                              defineFlg = true;
+                            }
+                            break;
+                        }
+                        if (defineFlg) {
+                          defineIfDepthType.push(curlyBracesType);
+                          curlyBracesType = "SIGNIF";
+                        }
+                      }
+                    }
+                  }
+
+                  //signEndif(#endif)
+                  else if (match.groups.signEndif !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signEndif)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
+                  //signError(#error)
+                  else if (match.groups.signError !== undefined) {
+                    if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signError)) !== undefined) {
+                      return hover;
+                    }
+                  }
+
                   //signInfo(#)
-                  if (match.groups.signInfo !== undefined) {
+                  else if (match.groups.signInfo !== undefined) {
                     switch (match.groups.signInfo) {
                       case "#author":
                         if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signAuthor)) !== undefined) {
@@ -347,6 +758,29 @@ export class MmlHoverProvider {
                     }
                   }
                 }
+              }
+              break;
+
+            //in signIf
+            case "SIGNIF":
+              //signIfdef(#ifdef)
+              if (match.groups.signIfdef !== undefined) {
+                defineIfDepthType.push(curlyBracesType);
+              }
+
+              //signIfndef(#ifndef)
+              else if (match.groups.signIfndef !== undefined) {
+                defineIfDepthType.push(curlyBracesType);
+              }
+
+              //signIf(#if)
+              else if (match.groups.signIf !== undefined) {
+                defineIfDepthType.push(curlyBracesType);
+              }
+
+              //signEndif(#endif)
+              else if (match.groups.signEndif !== undefined) {
+                curlyBracesType = defineIfDepthType.pop() ?? "SIGNIF";
               }
               break;
 
@@ -502,12 +936,42 @@ export class MmlHoverProvider {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signDefine)) !== undefined) {
                     return hover;
                   }
+
+                  if (!(match.groups.signDefineValue1 === "" && !inReplacement)) {
+                    let defineVar = match.groups.signDefineValue1;
+                    if (defineArray.find((define) => define.var === defineVar) !== undefined) {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: parseInt(match.groups.signDefineValue2) }
+                        );
+                      } else {
+                        defineArray.splice(
+                          defineArray.findIndex((define) => define.var === defineVar),
+                          1,
+                          { var: defineVar, value: 1 }
+                        );
+                      }
+                    } else {
+                      if (match.groups.signDefineValueAdditional !== undefined && match.groups.signDefineValue2 !== "") {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: parseInt(match.groups.signDefineValue2) });
+                      } else {
+                        defineArray.push({ var: match.groups.signDefineValue1, value: 1 });
+                      }
+                    }
+                  }
                 }
 
                 //signUndef(#undef)
                 else if (match.groups.signUndef !== undefined) {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signUndef)) !== undefined) {
                     return hover;
+                  }
+
+                  if (!(match.groups.signUndefValue === "" && !inReplacement)) {
+                    let defineVar = match.groups.signUndefValue;
+                    defineArray = defineArray.filter((define) => define.var !== defineVar);
                   }
                 }
 
@@ -516,6 +980,11 @@ export class MmlHoverProvider {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfdef)) !== undefined) {
                     return hover;
                   }
+
+                  if (!(match.groups.signIfdefValue === "" && !inReplacement) && !defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
                 }
 
                 //signIfndef(#ifndef)
@@ -523,12 +992,61 @@ export class MmlHoverProvider {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIfndef)) !== undefined) {
                     return hover;
                   }
+
+                  if (!(match.groups.signIfndefValue === "" && !inReplacement) && defineArray.map((d) => d.var).includes(match.groups.signIfdefValue)) {
+                    defineIfDepthType.push(curlyBracesType);
+                    curlyBracesType = "SIGNIF";
+                  }
                 }
 
                 //signIf(#if)
                 else if (match.groups.signIf !== undefined) {
                   if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signIf)) !== undefined) {
                     return hover;
+                  }
+
+                  let defineVar = match.groups.signIfValue1;
+                  if (!(match.groups.signIfValue1 === "" && !inReplacement) && !(defineArray.find((define) => define.var === defineVar) === undefined) && !(match.groups.signIfValue2 === "" || match.groups.signIfValue3 === "")) {
+                    let defineValue;
+                    let defineFlg = false;
+                    if ((defineValue = defineArray.find((define) => define.var === defineVar)) !== undefined) {
+                      switch (match.groups.signIfValue2) {
+                        case "==":
+                          if (defineValue.value !== parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<":
+                          if (defineValue.value >= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">":
+                          if (defineValue.value <= parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "<=":
+                          if (defineValue.value > parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case ">=":
+                          if (defineValue.value < parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                        case "!=":
+                          if (defineValue.value === parseInt(match.groups.signIfValue3)) {
+                            defineFlg = true;
+                          }
+                          break;
+                      }
+                      if (defineFlg) {
+                        defineIfDepthType.push(curlyBracesType);
+                        curlyBracesType = "SIGNIF";
+                      }
+                    }
                   }
                 }
 
@@ -1500,13 +2018,16 @@ export class MmlHoverProvider {
         let regex: RegExp;
         switch (curlyBracesType) {
           case "SAMPLES":
-            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signAny, regexMap.anything].join("|"), "g");
+            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.signAny, regexMap.anything].join("|"), "g");
             break;
           case "INSTRUMENTS":
-            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");
+            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.instrument, regexMap.noise, regexMap.hexCommand, regexMap.anything].join("|"), "g");
             break;
           case "SPC":
-            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signInfo, regexMap.signLength, regexMap.signAny, regexMap.anything].join("|"), "g");
+            regex = new RegExp([regexMap.curlyBracesBegin, regexMap.curlyBracesEnd, regexMap.quotation, regexMap.signDefine, regexMap.signUndef, regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif, regexMap.signError, regexMap.signInfo, regexMap.signLength, regexMap.signAny, regexMap.anything].join("|"), "g");
+            break;
+          case "SIGNIF":
+            regex = new RegExp([regexMap.signIfdef, regexMap.signIfndef, regexMap.signIf, regexMap.signEndif].join("|"), "g");
             break;
           default:
             regex = new RegExp(
