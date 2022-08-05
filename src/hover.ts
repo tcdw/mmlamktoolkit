@@ -1682,11 +1682,11 @@ export class MmlHoverProvider {
 
                       //FIR filter
                       case "F5":
-                        if (hexCount >= 8) {
-                          if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandF5)) !== undefined) {
-                            return hover;
-                          }
+                        if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandF5)) !== undefined) {
+                          return hover;
+                        }
 
+                        if (hexCount >= 8) {
                           hexMatch = undefined;
                         }
                         hexCount++;
