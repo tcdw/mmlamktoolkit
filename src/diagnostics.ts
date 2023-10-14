@@ -2369,6 +2369,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   }
                 }
 
+                else if (match.groups.pitchSlide !== undefined) {
+                  console.log("found");
+                }
+
                 //else
                 else {
                   if (!inReplacement && unexpectedMatch === undefined) {
@@ -2490,6 +2494,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                 regexMap.octaveLower,
                 regexMap.octaveRaise,
                 regexMap.loopPoint,
+                regexMap.pitchSlide,
                 regexMap.anything,
               ].join("|"),
               "g"
