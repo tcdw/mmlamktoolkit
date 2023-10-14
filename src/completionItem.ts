@@ -625,6 +625,12 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
                 documentation: new vscode.MarkdownString(hoverMap.signOption + hoverMap.signOptionNoloop),
               },
               {
+                label: "option amk109hotpatch",
+                kind: vscode.CompletionItemKind.Keyword,
+                insertText: new vscode.SnippetString("option amk109hotpatch"),
+                documentation: new vscode.MarkdownString(hoverMap.signOption + hoverMap.signOptionAmk109hotpatch),
+              },
+              {
                 label: "define",
                 kind: vscode.CompletionItemKind.Keyword,
                 insertText: new vscode.SnippetString("define ${1:variable} ${2:num}"),

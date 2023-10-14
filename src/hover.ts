@@ -923,6 +923,11 @@ export class MmlHoverProvider {
                         return hover;
                       }
                       break;
+                    case "amk109hotpatch":
+                      if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signOption + hoverMap.signOptionAmk109hotpatch)) !== undefined) {
+                        return hover;
+                      }
+                      break;
                     default:
                       if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.signOption)) !== undefined) {
                         return hover;

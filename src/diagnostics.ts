@@ -1237,7 +1237,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   //Empty check
                   if (match.groups.signOptionValue === "" && !inReplacement) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#option directive missing its first argument.\nValue is empty."));
-                  } else if (!match.groups.signOptionValue.match(/^(?:tempoimmunity|dividetempo|smwvtable|noloop)$/i)) {
+                  } else if (!match.groups.signOptionValue.match(/^(?:tempoimmunity|dividetempo|smwvtable|noloop|amk109hotpatch)$/i)) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "#option directive missing its first argument.\nUnexpected value."));
                   }
                 }

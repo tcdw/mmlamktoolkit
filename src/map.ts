@@ -84,6 +84,17 @@ export const hoverMap = {
   signOptionDividetempo: "\n\n*dividetempo*\n\nSame as #halvetempo, but allows you to specify a value that's not a power of 2.",
   signOptionSmwvtable: "\n\n*smwvtable*\n\nForces the song to use SMW's velocity table instead of the default N-SPC one.",
   signOptionNoloop: "\n\n*noloop*\n\nLets AddmusicK know that this song should only play once and not loop one it is finished.",
+  signOptionAmk109hotpatch: `\n\n*amk109hotpatch*
+
+Activates a series of optional hot patches that were created for AddmusicK 1.0.9 to repair some playback quirks, but were not activated by default to avoid breaking older ports. The complete list of patches applied are as following:
+
+- Glissando only runs for one note instead of two (as it previously mistakenly did).
+- Echo writes are not enabled if the echo delay is set to zero and echo is otherwise not used. For extremely large songs, this prevents $FF00-$FF03 from being overwritten, giving you an extra 256 bytes to work with.
+- $F3 command previously failed to zero out the fractional pitch base due to the code not being added on when ported from AddmusicM (which did not have this kind of feature) to AddmusicK.
+- $FA $02 (Semitone tune) is not ignored by the $DD command for its target note.
+- Readahead looks inside loops and superloops.
+- When setting up an instrument (and for other commands that recycle the instrument setup code via using the updated backup table, such as $FA $01 (GAIN)), GAIN is written to first, then the ADSR voice DSP registers.
+- Arpeggio notes will not play during rests.`,
   signDefine: "**#define**\n\nDefines a constant as existing, and optionally gives it a value.",
   signUndef: "**#undef**\n\nDefines a constant as not existing.",
   signIfdef: "**#ifdef**\n\nAnything from this point to the next #endif will only be compiled if the specified value has been defined by #define.",
@@ -171,8 +182,7 @@ export const hoverMap = {
   - $06 - carol's MORE.bin
   - $07 - Vanilla SMW
   - $08-$7F - Reserved. Do not use.
-  - $80-$FF - User-defined Preset ID. Note that the preceding presets all use a pre-defined set of bits to use: you don't need to follow the same procedure and can do something else instead.
-  `,
+  - $80-$FF - User-defined Preset ID. Note that the preceding presets all use a pre-defined set of bits to use: you don't need to follow the same procedure and can do something else instead.`,
   hexCommandFAFE: `Contains a series of individual patches that can be toggled on and off on a per-bit basis. Note that these settings are "global"; i.e. it applies to all channels. The number of bytes this command takes up is variable: setting the highest bit (%1???????) means you define a second byte that contains an additional seven bits to set on and off (they will otherwise default to off). These bits are pre-defined...  
   Byte 0: %xyzabcde...  
   
