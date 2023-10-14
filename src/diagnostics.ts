@@ -1207,7 +1207,7 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                   //Version check
                   else if (parseInt(match.groups.signAmkValue) < 2) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "This song was made for a older version of AddmusicK.\nRecommended to set to #amk 2"));
-                  } else if (2 < parseInt(match.groups.signAmkValue)) {
+                  } else if (parseInt(match.groups.signAmkValue) > 4 || parseInt(match.groups.signAmkValue) === 3) {
                     diagnostics.push(createDiagnostic(lineIndex, match, "This song was made for a newer version of AddmusicK. You must update to use this song.\nRecommended to set to #amk 2"));
                   } else {
                     existAmk = true;
@@ -1926,7 +1926,8 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                         case "FA":
                           if (hexCount === 1) {
                             //Range check(0-04(4))
-                            if (!(0 <= parseInt("0x" + match.groups.hexCommandValue, 16) && parseInt("0x" + match.groups.hexCommandValue, 16) <= 4) && !inReplacement) {
+                            const matched = parseInt("0x" + match.groups.hexCommandValue, 16);
+                            if (!(0 <= matched && (matched <= 4 || matched === 0x7F || matched === 0xFE)) && !inReplacement) {
                               diagnostics.push(createDiagnostic(lineIndex, match, "Error parsing hex command.\nUndefined command."));
                             }
                           } else if (hexCount >= 2) {

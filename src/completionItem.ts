@@ -967,6 +967,18 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFA04),
           },
           {
+            label: "$FA $7F (Hot patch preset)",
+            kind: vscode.CompletionItemKind.Method,
+            insertText: new vscode.SnippetString("FA \\$7F $${1:XX}"),
+            documentation: new vscode.MarkdownString(hoverMap.hexCommandFA7F),
+          },
+          {
+            label: "$FA $FE (Hot patch toggle bits)",
+            kind: vscode.CompletionItemKind.Method,
+            insertText: new vscode.SnippetString("FA \\$FE $${1:XX}"),
+            documentation: new vscode.MarkdownString(hoverMap.hexCommandFAFE),
+          },
+          {
             label: "$FB (Arpeggio)",
             kind: vscode.CompletionItemKind.Method,
             insertText: new vscode.SnippetString("FB $${1:XX} $${2:YY} $${3:...}"),

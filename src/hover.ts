@@ -1757,6 +1757,16 @@ export class MmlHoverProvider {
                                 return hover;
                               }
                               break;
+                            case 0x7F:
+                              if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandFA7F)) !== undefined) {
+                                return hover;
+                              }
+                              break;
+                            case 0xFE:
+                              if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandFAFE)) !== undefined) {
+                                return hover;
+                              }
+                              break;
                             default:
                               if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandFA)) !== undefined) {
                                 return hover;

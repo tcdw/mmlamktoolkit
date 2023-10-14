@@ -160,6 +160,43 @@ export const hoverMap = {
   hexCommandFA03: "**Amplify** $FA $03 $XX\n\nMultiplies the volume of the current channel by this value + 1. 0 will not modify the volume, whereas FF will (just shy of) double it.\n\n*$03*\n\n*$XX* : Value to multiply the volume by",
   hexCommandFA04:
     "**Echo buffer reserve** $FA $04 $XX\n\nYou do not need to use this command manually. In fact, you probably shouldn't. This is inserted at the beginning of every song by the program, and doesn't have much use otherwise. Its sole purpose is to reserve an echo buffer large enough for the song's longest echo delay\n\n*$04*\n\n*$XX* : The largest echo buffer you plan to use",
+  hexCommandFA7F: `Applies a preset that replicates the music playback of a different Addmusic. Note that these settings are "global"; i.e. it applies to all channels. Preset IDs are as following (not all of them have been properly implemented yet, and are subject to change as new ones are added on)...
+
+  - $00 - AddmusicK 1.0.8 and earlier (not counting Beta)
+  - $01 - AddmusicK 1.0.9
+  - $02 - AddmusicK Beta
+  - $03 - Romi's Addmusic404
+  - $04 - Addmusic405
+  - $05 - AddmusicM
+  - $06 - carol's MORE.bin
+  - $07 - Vanilla SMW
+  - $08-$7F - Reserved. Do not use.
+  - $80-$FF - User-defined Preset ID. Note that the preceding presets all use a pre-defined set of bits to use: you don't need to follow the same procedure and can do something else instead.
+  `,
+  hexCommandFAFE: `Contains a series of individual patches that can be toggled on and off on a per-bit basis. Note that these settings are "global"; i.e. it applies to all channels. The number of bytes this command takes up is variable: setting the highest bit (%1???????) means you define a second byte that contains an additional seven bits to set on and off (they will otherwise default to off). These bits are pre-defined...  
+  Byte 0: %xyzabcde...  
+  
+  * %x - Define a new byte. Each byte that has this bit set will cause another byte to be defined. By default, all undefined bytes have their bits cleared.
+  * %y - When set, glissando runs for only one note. Otherwise, it runs for two notes.
+  * %z - When set, during buffer initialization done through the $FA $04 command, echo writes are not initially enabled if a zero echo delay is used (the $F1 command will enable them). Otherwise, echo writes are enabled even if a zero echo delay is used: as a side effect, $FF00-$FF03 will be overwritten in ARAM, meaning extremely large songs may lose some data (most likely sample data) when crossing this region. **This must be used at the start of the song on the lowest number channel prior to both any intro markers and notes in order to properly work, otherwise this won't stop $FF00-$FF03 from being overwritten if you are not using echo.**
+  * %a - When set, the $F3 command will zero out the fractional pitch base. Otherwise, this operation is not performed.
+  * %b - When set, $FA $02 (Semitone tune) is not ignored by the $DD command for its target note. Otherwise, $FA $02 (Semitone tune) is ignored by the $DD command's target note.
+  * %c - When set, readahead looks inside loops and superloops. Otherwise, readahead does not look inside loops and superloops.
+  * %d - When set, the GAIN register is written to first, then the ADSR registers when initializing an instrument. Otherwise, the ADSR registers are written to first, then GAIN.
+  * %e - When set, arpeggio notes will not play during rests. Otherwise, they will run normally even if a rest is used.
+  
+  Byte 1: %xyzabcde...  
+  
+  * %x - Define a new byte. Each byte that has this bit set will cause another byte to be defined. By default, all undefined bytes have their bits cleared.
+  * %y - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %z - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %a - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %b - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %c - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %d - Currently undefined. Please do not set under normal circumstances (unless you're doing your own hot patches: even then, this bit is subject to being used in future Addmusic versions).
+  * %e - When set, rests are only keyed off if they are detected in readahead. Otherwise, they are keyed off immediately when encountered.
+  
+  All other bytes are currently undefined. They are subject to being used in future Addmusic versions.`,
   hexCommandFB: "**Arpeggio commands** $FB $XX $YY $...\n\n*$XX* : Arpeggio type.\n\n*$YY*\n\n*$...*",
   hexCommandFBXX:
     "**Arpeggio** $FB $XX $YY $...\n\nSpecifies an arpeggio. Each note after this will play with a specified pattern.\n\n*$XX* : Number of notes in the sequence (must be less than $80). If this is 0, then arpeggio is turned off.\n\n*$YY* : The duration of each note\n\n*$...* : The sequence of notes. Each byte is the change in pitch from the currently playing note.",
