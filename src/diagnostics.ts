@@ -1691,6 +1691,10 @@ function refreshDiagnostics(doc: vscode.TextDocument, mmlDiagnostics: vscode.Dia
                         case "DF":
                         //Echo off
                         case "F0":
+                        //Tremolo Off
+                        case "FD":
+                        //Pitch Envelope Off
+                        case "FE":
                           hexMatch = undefined;
                           break;
 

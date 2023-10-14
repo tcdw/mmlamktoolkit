@@ -171,7 +171,7 @@ Activates a series of optional hot patches that were created for AddmusicK 1.0.9
   hexCommandFA03: "**Amplify** $FA $03 $XX\n\nMultiplies the volume of the current channel by this value + 1. 0 will not modify the volume, whereas FF will (just shy of) double it.\n\n*$03*\n\n*$XX* : Value to multiply the volume by",
   hexCommandFA04:
     "**Echo buffer reserve** $FA $04 $XX\n\nYou do not need to use this command manually. In fact, you probably shouldn't. This is inserted at the beginning of every song by the program, and doesn't have much use otherwise. Its sole purpose is to reserve an echo buffer large enough for the song's longest echo delay\n\n*$04*\n\n*$XX* : The largest echo buffer you plan to use",
-  hexCommandFA7F: `Applies a preset that replicates the music playback of a different Addmusic. Note that these settings are "global"; i.e. it applies to all channels. Preset IDs are as following (not all of them have been properly implemented yet, and are subject to change as new ones are added on)...
+  hexCommandFA7F: `**Hot patch reset** $FA $7F $XX\n\nApplies a preset that replicates the music playback of a different Addmusic. Note that these settings are "global"; i.e. it applies to all channels. Preset IDs are as following (not all of them have been properly implemented yet, and are subject to change as new ones are added on)...
 
   - $00 - AddmusicK 1.0.8 and earlier (not counting Beta)
   - $01 - AddmusicK 1.0.9
@@ -183,7 +183,7 @@ Activates a series of optional hot patches that were created for AddmusicK 1.0.9
   - $07 - Vanilla SMW
   - $08-$7F - Reserved. Do not use.
   - $80-$FF - User-defined Preset ID. Note that the preceding presets all use a pre-defined set of bits to use: you don't need to follow the same procedure and can do something else instead.`,
-  hexCommandFAFE: `Contains a series of individual patches that can be toggled on and off on a per-bit basis. Note that these settings are "global"; i.e. it applies to all channels. The number of bytes this command takes up is variable: setting the highest bit (%1???????) means you define a second byte that contains an additional seven bits to set on and off (they will otherwise default to off). These bits are pre-defined...  
+  hexCommandFAFE: `**Hot patch toggle bits** $FA $FE $XX\n\nContains a series of individual patches that can be toggled on and off on a per-bit basis. Note that these settings are "global"; i.e. it applies to all channels. The number of bytes this command takes up is variable: setting the highest bit (%1???????) means you define a second byte that contains an additional seven bits to set on and off (they will otherwise default to off). These bits are pre-defined...  
   Byte 0: %xyzabcde...  
   
   * %x - Define a new byte. Each byte that has this bit set will cause another byte to be defined. By default, all undefined bytes have their bits cleared.
@@ -214,6 +214,8 @@ Activates a series of optional hot patches that were created for AddmusicK 1.0.9
   hexCommandFB81:
     "**Glissando** $FB $81 $YY $ZZ\n\nIf glissando is turned on, then the current note will be rekeyed at increasingly higher/lower pitches. Analogous to sliding your hand down a keyboard.\n\n*$81*\n\n*$YY* : If glissando is turned on, then the current note will be rekeyed at increasingly higher/lower pitches. Analogous to sliding your hand down a keyboard.\n\n*$ZZ* : The number of semitones to step up or down by for each new note",
   hexCommandFC: "**Remote commands** $FC $WW $XX $YY $ZZ\n\n*$WW* : Address to jump to, low byte (not used for event type 0)\n\n*$XX* : Address to jump to, high byte (not used for event type 0)\n\n*$YY* : The event type\n\n*$ZZ* : How long to wait when using wait types 1 or 2. Note that a value of $00 is treated as $0100",
+  hexCommandFD: "**Tremolo Off** $FD\n\nDisables tremolo for the current channel",
+  hexCommandFE: "**Pitch Envelope Off** $FE\n\nTurns off pitch envelope.",
   quantization: "**Quantization** q\n\nThis command is specified in hex. The first digit specifies how long of a delay there is between each note. Valid values are from 0 to 7, with 7 having the smallest delay. The second digit controls the volume. Valid values are from 0 to F, with F being the loudest.\n\n*Example :*\n```\nq7F q70\n```",
   noise: "**Noise** n\n\nStarts playing noise on the current channel instead of using the current instrument's sample. ADSR and such are preserved, and the effect can be cancelled by using an instrument. The value must be a hex value between 0 and 1F.\n\n*Example :*\n```\nn5 n1F\n```",
   note: "**Note** c,d,e,f,g,a,b\n\nUse + or - after the letter to specify a sharp or flat, respectively. A number should appear after the note; this number should denote the note's duration. 1 is a whole note, 2 is a half note, 4 a quarter note, 8 an eighth note, etc. There are ways to specify notes of other durations; see below.\n\n*Example :*\n```\nc16 g+8 a-1\n```",

@@ -1008,6 +1008,18 @@ export function subscribeCompletionItem(context: vscode.ExtensionContext): void 
             insertText: new vscode.SnippetString("FC $${1:WW} $${2:XX} $${3:YY} $${4:ZZ}"),
             documentation: new vscode.MarkdownString(hoverMap.hexCommandFC),
           },
+          {
+            label: "$FD (Tremolo Off)",
+            kind: vscode.CompletionItemKind.Method,
+            insertText: new vscode.SnippetString("FD"),
+            documentation: new vscode.MarkdownString(hoverMap.hexCommandFD),
+          },
+          {
+            label: "$FE (Pitch Envelope Off)",
+            kind: vscode.CompletionItemKind.Method,
+            insertText: new vscode.SnippetString("FE"),
+            documentation: new vscode.MarkdownString(hoverMap.hexCommandFE),
+          },
         ];
         let completionList = new vscode.CompletionList(hexCompletionItems, false);
         return Promise.resolve(completionList);

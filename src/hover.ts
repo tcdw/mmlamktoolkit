@@ -1845,6 +1845,25 @@ export class MmlHoverProvider {
                         }
                         hexCount++;
                         break;
+
+                      // Tremolo Off
+                      case "FD":
+                        if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandFD)) !== undefined) {
+                          return hover;
+                        }
+
+                        hexMatch = undefined;
+                        break;
+
+                      // Pitch Envelope Off
+                      case "FE":
+                        if ((hover = hoverCheck(lineIndex, match.index, match[0], hoverMap.hexCommandFE)) !== undefined) {
+                          return hover;
+                        }
+
+                        hexMatch = undefined;
+                        break;
+
                     }
                   }
                   isHex = true;
